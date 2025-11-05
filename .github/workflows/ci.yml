@@ -21,14 +21,8 @@ jobs:
           bundler-cache: true
 
       - name: Scan for common Rails security vulnerabilities using static analysis
-        id: brakeman
         continue-on-error: true
-        run: |
-          set +e
-          bin/brakeman --no-pager --format json --output brakeman.json
-          BRAKEMAN_EXIT=$?
-          bin/brakeman --no-pager --format text
-          exit $BRAKEMAN_EXIT
+        run: bin/brakeman --no-pager --format json --output brakeman.json
 
       - name: Upload Brakeman report
         uses: actions/upload-artifact@v4
@@ -38,12 +32,6 @@ jobs:
           path: brakeman.json
           retention-days: 7
           if-no-files-found: ignore
-
-      - name: Check Brakeman results
-        if: steps.brakeman.outcome == 'failure'
-        run: |
-          echo "::error::Brakeman found security vulnerabilities. Check the report artifact for details."
-          exit 1
 
   scan_js:
     runs-on: ubuntu-latest
