@@ -30,7 +30,7 @@ A Rails 8 app for managing pickup games, athletes, match attendance, and cashflo
 2. **Setup:**
    ```bash
    # Copy environment file
-   cp env.example .env
+   cp .env.example .env
    
    # Start development environment
    ./script/dev.sh start    # Unix/Linux/macOS
@@ -47,7 +47,7 @@ The database will be automatically created and migrated on first start.
 
 2. **Setup:**
    ```bash
-   cp env.example .env
+   cp .env.example .env
    bundle install
    bin/rails db:create db:migrate db:seed
    bin/rails server
@@ -219,7 +219,7 @@ Containerized deployment via Kamal is configured in `config/deploy.yml`. See the
 
 ## Environment Configuration
 
-- Copy `env.example` to `.env` for local development
+- Copy `.env.example` to `.env` for local development
 - Database configuration: `config/database.yml`
 - Default database names: `pickup_game_manager_development` and `pickup_game_manager_test`
 
