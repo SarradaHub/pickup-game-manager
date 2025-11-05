@@ -69,51 +69,51 @@ group :development do
 
   # Load environment variables from .env files
   gem "dotenv-rails"
-  
+
   # Better error pages with interactive debugging
   gem "better_errors"
   gem "binding_of_caller"
-  
+
   # Performance profiling
   gem "rack-mini-profiler"
-  
+
   # N+1 query detection
   gem "bullet"
-  
+
   # Annotate models with schema information
   gem "annotate"
-  
+
   # Better debugging console
   gem "pry-rails"
-  
+
   # Preview emails in browser
   gem "letter_opener"
 end
 
 group :development, :test do
   gem "rspec-rails"
-  gem 'database_cleaner-active_record'
-  
+  gem "database_cleaner-active_record"
+
   # Code quality and linting (rubocop-rails-omakase already in group above)
-  gem 'rubocop-performance'
-  gem 'rubocop-rspec'
-  gem 'rubocop-rails'
-  gem 'rubocop-rake'
-  gem 'rubocop-packaging'
-  
+  gem "rubocop-performance"
+  gem "rubocop-rspec"
+  gem "rubocop-rails"
+  gem "rubocop-rake"
+  gem "rubocop-packaging"
+
   # Testing helpers
-  gem 'timecop' # Freeze time in tests
-  gem 'faker' # Generate fake data for factories
+  gem "timecop" # Freeze time in tests
+  gem "faker" # Generate fake data for factories
 end
 
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
-  gem 'rails-controller-testing'
-  gem 'shoulda-matchers'
-  gem 'factory_bot_rails'
-  
+  gem "rails-controller-testing"
+  gem "shoulda-matchers"
+  gem "factory_bot_rails"
+
   # Test coverage
-  gem 'simplecov', require: false
+  gem "simplecov", require: false
 end
