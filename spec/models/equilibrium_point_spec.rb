@@ -135,7 +135,7 @@ RSpec.describe EquilibriumPoint, type: :model do
       # Test with daily income vs Basic expenses
       daily_income = 15.0
       basic_expenses = 650.0
-      expected_equilibrium = ((basic_expenses / daily_income).ceil) / 1
+      expected_equilibrium = (basic_expenses / daily_income).ceil
 
       result = EquilibriumPoint.calculate_equilibrium_point([ 'daily' ], [ 'Basic' ])
       expect(result).to eq(expected_equilibrium)
@@ -145,7 +145,7 @@ RSpec.describe EquilibriumPoint, type: :model do
       # Test with daily + monthly income vs Basic + Intermediary expenses
       total_income = 15.0 + 35.0
       total_expenses = 650.0 + (50.0 * 2) + 350.0 + 150.0
-      expected_equilibrium = ((total_expenses / total_income).ceil) / 2
+      expected_equilibrium = (total_expenses / total_income).ceil
 
       result = EquilibriumPoint.calculate_equilibrium_point([ 'daily', 'monthly' ], [ 'Basic', 'Intermediary' ])
       expect(result).to eq(expected_equilibrium)

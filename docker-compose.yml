@@ -3,10 +3,12 @@ services:
     image: postgres:16
     container_name: pg-pgm
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: lmafra
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: pickup_game_manager_development
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     healthcheck:
@@ -29,10 +31,10 @@ services:
     environment:
       RAILS_ENV: development
       RAILS_LOG_LEVEL: debug
-      POSTGRES_HOST: db
-      POSTGRES_USER: lmafra
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: pickup_game_manager_development
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
       # Rails development optimizations
       RAILS_MAX_THREADS: 5
       WEB_CONCURRENCY: 1
