@@ -7,214 +7,226 @@ A Rails 8 app for managing pickup games, athletes, match attendance, and cashflo
 - **Matches**: Schedule matches with `date` and `location`. Link athletes to matches and record payments per athlete/match.
 - **Payments**: Record payments from athletes for a specific match and category (e.g., modality). Payments have `amount` and `status` (`pending` or `paid`).
 - **Incomes**: Define income entries tied to a `TransactionCategory` with a `unit_value` and `date`.
-- **Expenses**: Track expenses with `type`, `description`, `unit_value`, `quantity`, and `date` (uses STI disabled, so `type` is a normal attribute). Total per expense is `unit_value * quantity`.
-- **Transaction Categories**: Centralize categories used by `Incomes` and `Payments` (e.g., modality names). Ensures consistent reporting.
+- **Expenses**: Track expenses with `type`, `description`, `unit_value`, `quantity`, and `date`. Total per expense is `unit_value * quantity`.
+- **Transaction Categories**: Centralize categories used by `Incomes` and `Payments` (e.g., modality names).
 - **Dashboard**: At `/` or `/dashboard`, shows period summaries: total paid income, total expenses, and profit for the selected date range.
 
-### Key domain relationships
-- `Athlete has_many Payments` and participates in `Matches` via `AthleteMatch` join model.
-- `Match has_many Payments` and has many `Athletes` through `AthleteMatch`.
-- `Payment belongs_to Athlete`, `Match`, and `TransactionCategory`.
-- `Income belongs_to TransactionCategory`.
-- `Expense` is standalone with computed `total_value`.
-- `TransactionCategory has_many Incomes` and `Payments`.
-
-### Services
-- `FinancialSummary.period_summary(date_range)`:
-  - income: all `Payment` records with `status: "paid"` within range
-  - income_value: sum of `amount` from those payments
-  - expenses: all `Expense` records within range
-  - expenses_value: sum of `unit_value * quantity`
-  - profit: `income_value - expenses_value`
-- `EquilibriumPoint.calculate_equilibrium_point(income_types = [], expenses_types = [])`:
-  - For selected income category names and expense types, computes:
-    - `equilibrium_point = ceil(expenses_total / income_total)`
-    - per-type averages, counts, and totals for both sides
-  - Returns an object with totals, per-type breakdowns, counts, and the equilibrium point. Returns zeros if no income data or no selected income types.
-
-### Routes
-Resourceful CRUD endpoints are provided for:
-- `/athletes`
-- `/matches`
-- `/payments`
-- `/incomes`
-- `/expenses`
-
-Additional routes:
-- `/dashboard` → `dashboard#index`
-- `/` (root) → `dashboard#index`
-- `/up` → Rails health check
-
 ### Tech stack
-- Rails 8, Ruby 3.3 (see `.ruby-version` if present)
+- Rails 8, Ruby 3.3
 - PostgreSQL
 - Docker & Docker Compose (for development)
 - Importmap, Turbo, Stimulus
-- Solid Queue/Cache/Cable (configured gems present)
 - RSpec for tests
+- Brakeman & RubyCritic for code quality
 
-### Getting started
+---
 
-#### Option 1: Using Docker (Recommended)
+## Getting Started
 
-The easiest way to get started is using Docker Compose:
+### Quick Start with Docker (Recommended)
 
-1. **Prerequisites:**
-   - Docker and Docker Compose installed
-   - Git
+1. **Prerequisites:** Docker and Docker Compose installed
 
-2. **Setup environment variables:**
-   - Copy `env.example` to `.env` (for development) and adjust if needed:
-     - `POSTGRES_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-
-3. **Start development environment:**
+2. **Setup:**
    ```bash
-   # Unix/Linux/macOS
-   ./script/dev.sh start
+   # Copy environment file
+   cp env.example .env
    
-   # Windows
-   script\dev.bat start
+   # Start development environment
+   ./script/dev.sh start    # Unix/Linux/macOS
+   script\dev.bat start     # Windows
    ```
-   
-   This will:
-   - Build the Docker containers
-   - Start PostgreSQL and Rails
-   - Set up the database automatically
-   - Make the app available at http://localhost:3000
 
-4. **Access the application:**
-   - Visit http://localhost:3000
-   - The database will be automatically created and migrated
+3. **Access:** http://localhost:3000
 
-**Useful development commands:**
-```bash
-# View logs
-./script/dev.sh logs
+The database will be automatically created and migrated on first start.
 
-# Open Rails console
-./script/dev.sh console
+### Local Development (Without Docker)
 
-# Run database migrations
-./script/dev.sh db:migrate
+1. **Prerequisites:** Ruby 3.3, Bundler, PostgreSQL
 
-# Seed the database
-./script/dev.sh db:seed
-
-# Stop containers
-./script/dev.sh stop
-
-# Restart containers
-./script/dev.sh restart
-
-# View status
-./script/dev.sh status
-```
-
-#### Option 2: Local Development (Without Docker)
-
-1. **Prerequisites:**
-   - Ruby 3.3 and Bundler installed
-   - PostgreSQL running and accessible
-
-2. **Setup environment variables:**
-   - Copy `env.example` to `.env` and adjust:
-     - `POSTGRES_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-
-3. **Install dependencies:**
+2. **Setup:**
    ```bash
+   cp env.example .env
    bundle install
-   ```
-
-4. **Database setup:**
-   ```bash
-   bin/rails db:create db:migrate
-   ```
-
-5. **Run the app:**
-   ```bash
+   bin/rails db:create db:migrate db:seed
    bin/rails server
    ```
-   - Visit http://localhost:3000
 
-### Running tests
+---
 
-#### Using Docker (Recommended)
+## Available Scripts
+
+The project includes helper scripts for common development tasks. All scripts work with Docker (if containers are running) or locally.
+
+### Development Script (`script/dev.sh` / `script/dev.bat`)
+
+Manage your development environment:
 
 ```bash
-# Unix/Linux/macOS
-./script/run_tests.sh
+./script/dev.sh start          # Start containers
+./script/dev.sh stop           # Stop containers
+./script/dev.sh restart        # Restart containers
+./script/dev.sh build           # Build containers
+./script/dev.sh logs            # View logs
+./script/dev.sh console         # Open Rails console
+./script/dev.sh shell           # Open shell in container
+./script/dev.sh status          # Show container status
 
-# Windows
-script\run_tests.bat
+# Database commands
+./script/dev.sh db:migrate      # Run migrations
+./script/dev.sh db:seed         # Seed database
+./script/dev.sh db:create       # Create database
+./script/dev.sh db:reset        # Reset database
+
+# Rails commands
+./script/dev.sh rails routes    # Show routes
+./script/dev.sh rails runner "puts 'Hello'"  # Run Ruby code
 ```
 
-**Test script options:**
+### Test Script (`script/run_tests.sh` / `script/run_tests.bat`)
+
+Run RSpec tests with optimized options:
+
 ```bash
-# Fastest - no reset, skip checks (for quick iterations)
-./script/run_tests.sh --skip-checks
+# Basic usage
+./script/run_tests.sh                    # Run all tests (fast, no reset)
+./script/run_tests.sh spec/models        # Run specific directory
+./script/run_tests.sh spec/models/athlete_spec.rb  # Run specific file
 
-# Fast reset when needed (recommended)
-./script/run_tests.sh --reset
+# Speed options
+./script/run_tests.sh --skip-checks      # Fastest: skip health checks
+./script/run_tests.sh --reset            # Fast reset (recommended)
+./script/run_tests.sh --keep-containers   # Keep containers running
 
-# Keep containers running for multiple test runs
-./script/run_tests.sh --keep-containers --reset
+# Advanced options
+./script/run_tests.sh --parallel         # Run tests in parallel
+./script/run_tests.sh --full-reset       # Full database reset
+./script/run_tests.sh --reset-docker     # Reset and rebuild containers
 
-# Run tests in parallel (if parallel_tests gem is installed)
-./script/run_tests.sh --parallel
-
-# Run specific test file
-./script/run_tests.sh spec/models/athlete_spec.rb
-
-# Full database reset (slower but thorough)
-./script/run_tests.sh --full-reset
-
-# Reset Docker containers and rebuild
-./script/run_tests.sh --reset-docker
+# RSpec options (passed directly to RSpec)
+./script/run_tests.sh --format documentation  # Use documentation formatter
+./script/run_tests.sh --fail-fast             # Stop on first failure
+./script/run_tests.sh --seed 12345            # Set random seed
 ```
 
-**Available options:**
-- `--reset` / `-r`: Fast database reset (truncate, recommended)
-- `--no-reset` / `-n`: Skip database reset (fastest, default)
-- `--skip-checks` / `-s`: Skip container health checks (fastest startup)
+**Common options:**
+- `--reset` / `-r`: Fast database reset (truncate)
+- `--no-reset` / `-n`: Skip reset (default, fastest)
+- `--skip-checks` / `-s`: Skip container health checks
 - `--keep-containers` / `-k`: Keep containers running after tests
 - `--parallel` / `-p`: Run tests in parallel
-- `--full-reset` / `-F`: Full database reset (drop/create)
-- `--reset-docker` / `-d`: Reset Docker containers and rebuild
 
-#### Local Testing (Without Docker)
+### Code Quality Script (`script/run_code_quality.sh`)
+
+Run static analysis and code quality checks:
+
+```bash
+./script/run_code_quality.sh brakeman    # Security scan (Brakeman)
+./script/run_code_quality.sh rubycritic  # Code quality analysis
+./script/run_code_quality.sh all         # Run both tools
+```
+
+**What each tool does:**
+- **Brakeman**: Scans for security vulnerabilities in Rails code
+- **RubyCritic**: Analyzes code quality, complexity, and provides a score (HTML report in `tmp/rubycritic/`)
+
+You can also use the tools directly:
+```bash
+bin/brakeman              # Security scan
+bin/rubycritic app lib    # Code quality analysis
+bin/rubocop               # Code style check
+```
+
+---
+
+## Code Quality & Static Analysis
+
+The project includes automated code quality checks that run in CI and can be run locally.
+
+### Tools
+
+- **Brakeman**: Security vulnerability scanner for Rails applications
+- **RubyCritic**: Code quality and complexity analysis
+- **RuboCop**: Code style and best practices enforcement
+
+### Running Locally
+
+```bash
+# Using the helper script (recommended)
+./script/run_code_quality.sh all
+
+# Or run individually
+bin/brakeman
+bin/rubycritic app lib
+bin/rubocop
+```
+
+### CI Integration
+
+Code quality checks run automatically in GitHub Actions:
+- Security scans (Brakeman) on every push/PR
+- Code quality analysis (RubyCritic) on every push/PR
+- Code style checks (RuboCop) on every push/PR
+- Reports are available as downloadable artifacts
+
+---
+
+## Running Tests
+
+### Using Docker (Recommended)
+
+```bash
+./script/run_tests.sh              # Fastest: no reset
+./script/run_tests.sh --reset      # With database reset
+./script/run_tests.sh spec/models  # Run specific tests
+```
+
+### Local Testing
 
 ```bash
 bundle exec rspec
 ```
 
-### Data model (overview)
-- `Athlete(name, phone, date_of_birth)`
-- `Match(date, location)`
-- `AthleteMatch(athlete_id, match_id)` with uniqueness on `[athlete_id, match_id]`
-- `TransactionCategory(name)` unique
-- `Payment(athlete_id, match_id, transaction_category_id, amount, status, date)`
-- `Income(transaction_category_id, unit_value, date)`
-- `Expense(type, description, unit_value, quantity, date)` with `total_value = unit_value * quantity`
+---
 
-### Notable validations and scopes
-- Presence validations across core fields (e.g., `Athlete.name`, `Match.date`, `Payment.amount`).
-- `Payment.status` limited to `pending` or `paid`; convenience scopes: `.pending` and `.paid`.
-- `Expense.quantity` must be greater than 0.
-- `AthleteMatch` enforces uniqueness per athlete/match pair.
+## Project Structure
 
-### Deployment
-- Containerized deployment via Kamal is scaffolded in `config/deploy.yml`.
-  - Set your image name, server hosts, domain, and registry credentials.
-  - Provide secrets (e.g., `RAILS_MASTER_KEY`) via Kamal’s secrets mechanism.
-  - Configure DB host and any accessories as needed.
+### Key Domain Relationships
+- `Athlete` has_many `Payments` and participates in `Matches` via `AthleteMatch`
+- `Match` has_many `Payments` and has many `Athletes` through `AthleteMatch`
+- `Payment` belongs_to `Athlete`, `Match`, and `TransactionCategory`
+- `Income` belongs_to `TransactionCategory`
+- `Expense` is standalone with computed `total_value`
+- `TransactionCategory` has_many `Incomes` and `Payments`
 
-### Environment configuration
-- See `config/database.yml` for Postgres env variable usage.
-- Default dev/test DB names are derived from env vars; override in `.env`.
+### Services
+- `FinancialSummary.period_summary(date_range)`: Returns income, expenses, and profit for a date range
+- `EquilibriumPoint.calculate_equilibrium_point(income_types, expenses_types)`: Calculates break-even point
 
-### Health and monitoring
-- `/up` returns 200 when the app boots successfully, useful for load balancers.
+### Routes
+- `/`, `/dashboard` → Dashboard
+- `/athletes`, `/matches`, `/payments`, `/incomes`, `/expenses` → CRUD endpoints
+- `/up` → Health check
 
-### Notes
-- `Expense` and `Income` disable STI by design to allow `type` as a normal column for Expenses and a proxy to `TransactionCategory` name for Incomes.
-- `Payment#modality` maps to its `TransactionCategory` name for convenience.
+---
+
+## Deployment
+
+Containerized deployment via Kamal is configured in `config/deploy.yml`. See the file for deployment setup instructions.
+
+---
+
+## Environment Configuration
+
+- Copy `env.example` to `.env` for local development
+- Database configuration: `config/database.yml`
+- Default database names: `pickup_game_manager_development` and `pickup_game_manager_test`
+
+---
+
+## Notes
+
+- `Expense` and `Income` disable STI to allow `type` as a normal column for Expenses
+- `Payment#modality` maps to its `TransactionCategory` name for convenience
+- Test database uses separate volumes in Docker to avoid conflicts with development data
