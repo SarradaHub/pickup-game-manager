@@ -57,18 +57,25 @@ class EquilibriumPoint
   def self.income_data(types)
     return { total: 0, unit_values: {} } if types.empty?
 
-    incomes = Income.joins(:transaction_category)
+    incomes = Income.includes(:transaction_category)
+                    .joins(:transaction_category)
                     .where(transaction_categories: { name: types })
+                    .to_a
 
-    total = incomes.sum(:unit_value)
+    # Group incomes in memory by category name
+    incomes_by_type = incomes.group_by { |income| income.transaction_category.name }
+
+    total = incomes.sum(&:unit_value)
     unit_values = {}
 
     types.each do |type|
-      type_incomes = incomes.where(transaction_categories: { name: type })
+      type_incomes = incomes_by_type[type] || []
+      next if type_incomes.empty?
+
       unit_values[type] = {
-        unit_value: type_incomes.average(:unit_value)&.round(2) || 0,
+        unit_value: (type_incomes.sum(&:unit_value).to_f / type_incomes.count).round(2),
         count: type_incomes.count,
-        total_value: type_incomes.sum(:unit_value)
+        total_value: type_incomes.sum(&:unit_value)
       }
     end
 
@@ -78,15 +85,20 @@ class EquilibriumPoint
   def self.expenses_data(types)
     return { total: 0, unit_values: {} } if types.empty?
 
-    expenses = Expense.where(type: types)
+    expenses = Expense.where(type: types).to_a
+
+    # Group expenses in memory by type
+    expenses_by_type = expenses.group_by(&:type)
 
     total = expenses.sum { |expense| expense.unit_value * expense.quantity }
     unit_values = {}
 
     types.each do |type|
-      type_expenses = expenses.where(type: type)
+      type_expenses = expenses_by_type[type] || []
+      next if type_expenses.empty?
+
       unit_values[type] = {
-        unit_value: type_expenses.average(:unit_value)&.round(2) || 0,
+        unit_value: (type_expenses.sum(&:unit_value).to_f / type_expenses.count).round(2),
         count: type_expenses.count,
         total_value: type_expenses.sum { |expense| expense.unit_value * expense.quantity }
       }
