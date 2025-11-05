@@ -11,7 +11,7 @@ class DashboardController < ApplicationController
   def equilibrium_point
     @income_types = params[:income_types] || []
     @expenses_types = params[:expenses_types] || []
-    @equilibrium_point = EquilibriumPoint.calculate_equilibrium_point(@income_types, @expenses_types)
+    @equilibrium_point = EquilibriumPoint.calculate_equilibrium_point_with_details(@income_types, @expenses_types)
 
     @available_income_types = TransactionCategory.pluck(:name)
     @available_expense_types = Expense.distinct.pluck(:type)

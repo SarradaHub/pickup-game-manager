@@ -8,6 +8,13 @@ class AthletesController < ApplicationController
   def show
   end
 
+  def new
+    @athlete = Athlete.new
+  end
+
+  def edit
+  end
+
   def create
     @athlete = Athlete.new(athlete_params)
 

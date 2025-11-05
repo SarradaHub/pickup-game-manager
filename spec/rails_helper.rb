@@ -34,6 +34,10 @@ begin
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
+
+# Require rails-controller-testing after Rails is loaded
+require 'rails-controller-testing'
+
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
@@ -64,6 +68,9 @@ RSpec.configure do |config|
   #
   # To enable this behaviour uncomment the line below.
   # config.infer_spec_type_from_file_location!
+
+  # rails-controller-testing automatically provides assigns, assert_template, etc.
+  # for controller specs when the gem is required (which we do above)
 
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!

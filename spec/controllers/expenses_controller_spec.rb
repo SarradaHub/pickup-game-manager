@@ -3,6 +3,9 @@ require 'rails_helper'
 RSpec.describe ExpensesController, type: :controller do
   fixtures :expenses, :incomes, :matches
 
+  # Enable view rendering for JSON responses
+  render_views
+
   let(:valid_attributes) {
     { type: 'Basic', description: 'Test expense', unit_value: 100.0, quantity: 1, date: Date.today }
   }
@@ -55,12 +58,30 @@ RSpec.describe ExpensesController, type: :controller do
         post :create, params: { expense: valid_attributes }, session: valid_session
         expect(response).to redirect_to(Expense.last)
       end
+
+      it "responds with JSON format" do
+        post :create, params: { expense: valid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:created)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
       it "renders a response with 422 status (i.e. to display the 'new' template)" do
         post :create, params: { expense: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        post :create, params: { expense: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -88,6 +109,16 @@ RSpec.describe ExpensesController, type: :controller do
         expect(response).to have_http_status(:see_other)
         expect(response).to redirect_to(expense)
       end
+
+      it "responds with JSON format" do
+        expense = expenses(:food)
+        put :update, params: { id: expense.to_param, expense: new_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
@@ -95,6 +126,16 @@ RSpec.describe ExpensesController, type: :controller do
         expense = expenses(:food)
         put :update, params: { id: expense.to_param, expense: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        expense = expenses(:food)
+        put :update, params: { id: expense.to_param, expense: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -112,6 +153,12 @@ RSpec.describe ExpensesController, type: :controller do
       delete :destroy, params: { id: expense.to_param }, session: valid_session
       expect(response).to have_http_status(:see_other)
       expect(response).to redirect_to(expenses_path)
+    end
+
+    it "responds with JSON format" do
+      expense = expenses(:food)
+      delete :destroy, params: { id: expense.to_param, format: :json }, session: valid_session
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

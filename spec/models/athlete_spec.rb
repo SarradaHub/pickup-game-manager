@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Athlete, type: :model do
-  fixtures :athletes, :payments, :transaction_categories
+  fixtures :athletes, :payments, :transaction_categories, :matches, :athlete_matches
 
   describe 'validations' do
     it 'is valid with valid attributes (from fixtures)' do
@@ -96,6 +96,51 @@ RSpec.describe Athlete, type: :model do
       athlete.phone = 9998887777
       expect(athlete.save).to be true
       expect(athlete.reload.phone).to eq(9998887777)
+    end
+  end
+
+  describe 'associations' do
+    describe 'has_many :matches, through: :athlete_matches' do
+      it 'returns matches associated through athlete_matches' do
+        athlete = athletes(:john_doe)
+        expect(athlete.matches).to be_an(ActiveRecord::Associations::CollectionProxy)
+        expect(athlete.matches.count).to eq(2)
+      end
+
+      it 'returns the correct matches for an athlete' do
+        athlete = athletes(:john_doe)
+        match_locations = athlete.matches.pluck(:location)
+        expect(match_locations).to all(eq('COPM'))
+      end
+
+      it 'returns matches with the correct dates' do
+        athlete = athletes(:john_doe)
+        match_dates = athlete.matches.pluck(:date)
+        expect(match_dates).to include(Date.parse('2025-08-30'))
+        expect(match_dates).to include(Date.parse('2025-09-05'))
+      end
+
+      it 'allows accessing match details through the association' do
+        athlete = athletes(:john_doe)
+        match = athlete.matches.first
+        expect(match).to be_a(Match)
+        expect(match).to have_attributes(location: 'COPM')
+      end
+
+      it 'returns empty collection for athlete with no matches' do
+        athlete = Athlete.create(name: 'New Athlete', phone: 1112223333, date_of_birth: Date.today)
+        expect(athlete.matches).to be_empty
+      end
+
+      it 'allows adding matches through the association' do
+        athlete = athletes(:john_doe)
+        new_match = matches(:beach_game)
+        initial_count = athlete.matches.count
+
+        athlete.matches << new_match unless athlete.matches.include?(new_match)
+
+        expect(athlete.matches.count).to be >= initial_count
+      end
     end
   end
 end

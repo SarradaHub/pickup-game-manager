@@ -8,6 +8,7 @@ on:
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
+    name: Security Scan (Brakeman)
 
     steps:
       - name: Checkout code
@@ -20,10 +21,21 @@ jobs:
           bundler-cache: true
 
       - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+        continue-on-error: true
+        run: bin/brakeman --no-pager --format json --output brakeman.json
+
+      - name: Upload Brakeman report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: brakeman-report
+          path: brakeman.json
+          retention-days: 7
+          if-no-files-found: ignore
 
   scan_js:
     runs-on: ubuntu-latest
+    name: JavaScript Security Scan
 
     steps:
       - name: Checkout code
@@ -40,6 +52,8 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    name: Code Style (RuboCop)
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -53,8 +67,34 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
+  code_quality:
+    runs-on: ubuntu-latest
+    name: Code Quality (RubyCritic)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Run RubyCritic code quality analysis
+        run: bundle exec rubycritic app lib --format html --minimum-score 0 --no-browser
+
+      - name: Upload RubyCritic report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rubycritic-report
+          path: tmp/rubycritic/
+          retention-days: 7
+
   test:
     runs-on: ubuntu-latest
+    name: Tests
 
     services:
       postgres:

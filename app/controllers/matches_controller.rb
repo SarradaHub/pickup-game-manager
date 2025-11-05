@@ -8,6 +8,13 @@ class MatchesController < ApplicationController
   def show
   end
 
+  def new
+    @match = Match.new
+  end
+
+  def edit
+  end
+
   def create
     @match = Match.new(match_params)
 

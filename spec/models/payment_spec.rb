@@ -141,4 +141,78 @@ RSpec.describe Payment, type: :model do
       expect(weekend_payments.count).to eq(1)
     end
   end
+
+  describe 'modality method' do
+    it 'returns the transaction category name' do
+      payment = payments(:weekend_payment)
+      expect(payment.modality).to eq('daily')
+    end
+
+    it 'returns nil when transaction_category is nil' do
+      payment = Payment.new(amount: 100.0, status: 'paid', date: Date.today)
+      expect(payment.modality).to be_nil
+    end
+
+    it 'returns the correct modality for monthly payment' do
+      payment = payments(:indoor_payment)
+      expect(payment.modality).to eq('monthly')
+    end
+  end
+
+  describe 'modality= method' do
+    it 'sets transaction_category by name' do
+      payment = Payment.new(amount: 100.0, status: 'paid', date: Date.today, athlete: athletes(:john_doe), match: matches(:weekend_game))
+      payment.modality = 'daily'
+
+      expect(payment.transaction_category).to eq(transaction_categories(:daily_transaction))
+    end
+
+    it 'updates transaction_category when modality is changed' do
+      payment = payments(:weekend_payment)
+      payment.modality = 'monthly'
+
+      expect(payment.transaction_category).to eq(transaction_categories(:monthly_transaction))
+    end
+
+    it 'sets transaction_category to nil when modality does not exist' do
+      payment = Payment.new(amount: 100.0, status: 'paid', date: Date.today, athlete: athletes(:john_doe), match: matches(:weekend_game))
+      payment.modality = 'non_existent_modality'
+
+      expect(payment.transaction_category).to be_nil
+    end
+  end
+
+  describe 'scopes' do
+    describe '.pending' do
+      it 'returns only pending payments' do
+        pending_payments = Payment.pending
+        expect(pending_payments).to all(have_attributes(status: 'pending'))
+        expect(pending_payments.count).to eq(1)
+        expect(pending_payments).to include(payments(:beach_payment))
+      end
+
+      it 'excludes paid payments' do
+        pending_payments = Payment.pending
+        expect(pending_payments).not_to include(payments(:weekend_payment))
+        expect(pending_payments).not_to include(payments(:indoor_payment))
+        expect(pending_payments).not_to include(payments(:night_payment))
+      end
+    end
+
+    describe '.paid' do
+      it 'returns only paid payments' do
+        paid_payments = Payment.paid
+        expect(paid_payments).to all(have_attributes(status: 'paid'))
+        expect(paid_payments.count).to eq(3)
+        expect(paid_payments).to include(payments(:weekend_payment))
+        expect(paid_payments).to include(payments(:indoor_payment))
+        expect(paid_payments).to include(payments(:night_payment))
+      end
+
+      it 'excludes pending payments' do
+        paid_payments = Payment.paid
+        expect(paid_payments).not_to include(payments(:beach_payment))
+      end
+    end
+  end
 end

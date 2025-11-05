@@ -98,4 +98,44 @@ RSpec.describe Income, type: :model do
       expect(income.reload.unit_value).to eq(25.0)
     end
   end
+
+  describe 'type method' do
+    it 'returns the transaction category name' do
+      income = incomes(:daily)
+      expect(income.type).to eq('daily')
+    end
+
+    it 'returns nil when transaction_category is nil' do
+      income = Income.new(unit_value: 100.0, date: Date.today)
+      expect(income.type).to be_nil
+    end
+
+    it 'returns the correct type for monthly income' do
+      income = incomes(:monthly)
+      expect(income.type).to eq('monthly')
+    end
+  end
+
+  describe 'type= method' do
+    it 'sets transaction_category by name' do
+      income = Income.new(unit_value: 100.0, date: Date.today)
+      income.type = 'daily'
+
+      expect(income.transaction_category).to eq(transaction_categories(:daily_transaction))
+    end
+
+    it 'updates transaction_category when type is changed' do
+      income = incomes(:daily)
+      income.type = 'monthly'
+
+      expect(income.transaction_category).to eq(transaction_categories(:monthly_transaction))
+    end
+
+    it 'sets transaction_category to nil when type does not exist' do
+      income = Income.new(unit_value: 100.0, date: Date.today)
+      income.type = 'non_existent_type'
+
+      expect(income.transaction_category).to be_nil
+    end
+  end
 end

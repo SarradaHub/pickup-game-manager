@@ -8,6 +8,13 @@ class PaymentsController < ApplicationController
   def show
   end
 
+  def new
+    @payment = Payment.new
+  end
+
+  def edit
+  end
+
   def create
     @payment = Payment.new(payment_params)
 
