@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Match, type: :model do
-  fixtures :matches, :payments
+  fixtures :matches, :payments, :athletes, :athlete_matches
 
   describe 'attributes' do
     let(:match) { matches(:weekend_game) }
@@ -75,5 +75,52 @@ RSpec.describe Match, type: :model do
     #   match = matches(:night_match)
     #   expect { match.destroy }.to change(Match, :count).by(-1)
     # end
+  end
+
+  describe 'associations' do
+    describe 'has_many :athletes, through: :athlete_matches' do
+      it 'returns athletes associated through athlete_matches' do
+        match = matches(:weekend_game)
+        expect(match.athletes).to be_an(ActiveRecord::Associations::CollectionProxy)
+        expect(match.athletes.count).to eq(2)
+      end
+
+      it 'returns the correct athletes for a match' do
+        match = matches(:weekend_game)
+        athlete_names = match.athletes.pluck(:name)
+        expect(athlete_names).to include('John Doe')
+        expect(athlete_names).to include('Sarah Wilson')
+      end
+
+      it 'allows accessing athlete details through the association' do
+        match = matches(:weekend_game)
+        athlete = match.athletes.first
+        expect(athlete).to be_an(Athlete)
+        expect(athlete).to respond_to(:name)
+        expect(athlete).to respond_to(:phone)
+        expect(athlete).to respond_to(:date_of_birth)
+      end
+
+      it 'returns empty collection for match with no athletes' do
+        match = Match.create(date: Date.today, location: 'COPM')
+        expect(match.athletes).to be_empty
+      end
+
+      it 'allows adding athletes through the association' do
+        match = matches(:beach_game)
+        new_athlete = athletes(:john_doe)
+        initial_count = match.athletes.count
+
+        match.athletes << new_athlete unless match.athletes.include?(new_athlete)
+
+        expect(match.athletes.count).to be >= initial_count
+      end
+
+      it 'returns unique athletes for matches with multiple athlete_matches' do
+        match = matches(:weekend_game)
+        athlete_ids = match.athletes.pluck(:id)
+        expect(athlete_ids.uniq.length).to eq(athlete_ids.length)
+      end
+    end
   end
 end

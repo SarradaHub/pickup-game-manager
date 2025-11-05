@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe PaymentsController, type: :controller do
-  fixtures :payments, :athletes, :matches, :transaction_categories
+  fixtures :transaction_categories, :athletes, :matches, :payments
+
+  # Enable view rendering for JSON responses
+  render_views
 
   let(:valid_attributes) {
     {
@@ -70,12 +73,30 @@ RSpec.describe PaymentsController, type: :controller do
         post :create, params: { payment: valid_attributes }, session: valid_session
         expect(response).to redirect_to(Payment.last)
       end
+
+      it "responds with JSON format" do
+        post :create, params: { payment: valid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:created)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
       it "renders a response with 422 status (i.e. to display the 'new' template)" do
         post :create, params: { payment: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        post :create, params: { payment: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -107,6 +128,16 @@ RSpec.describe PaymentsController, type: :controller do
         expect(response).to have_http_status(:see_other)
         expect(response).to redirect_to(payment)
       end
+
+      it "responds with JSON format" do
+        payment = payments(:weekend_payment)
+        put :update, params: { id: payment.to_param, payment: new_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
@@ -114,6 +145,16 @@ RSpec.describe PaymentsController, type: :controller do
         payment = payments(:weekend_payment)
         put :update, params: { id: payment.to_param, payment: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        payment = payments(:weekend_payment)
+        put :update, params: { id: payment.to_param, payment: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -131,6 +172,12 @@ RSpec.describe PaymentsController, type: :controller do
       delete :destroy, params: { id: payment.to_param }, session: valid_session
       expect(response).to have_http_status(:see_other)
       expect(response).to redirect_to(payments_path)
+    end
+
+    it "responds with JSON format" do
+      payment = payments(:weekend_payment)
+      delete :destroy, params: { id: payment.to_param, format: :json }, session: valid_session
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

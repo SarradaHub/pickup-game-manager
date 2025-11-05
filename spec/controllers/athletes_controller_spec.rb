@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe AthletesController, type: :controller do
-  fixtures :athletes, :payments, :matches
+  fixtures :transaction_categories, :athletes, :matches, :payments
+
+  # Enable view rendering for JSON responses
+  render_views
 
   let(:valid_attributes) {
     { name: 'Test Athlete', phone: 1234567890, date_of_birth: Date.today }
@@ -55,12 +58,30 @@ RSpec.describe AthletesController, type: :controller do
         post :create, params: { athlete: valid_attributes }, session: valid_session
         expect(response).to redirect_to(Athlete.last)
       end
+
+      it "responds with JSON format" do
+        post :create, params: { athlete: valid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:created)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
       it "renders a response with 422 status (i.e. to display the 'new' template)" do
         post :create, params: { athlete: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        post :create, params: { athlete: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -86,6 +107,16 @@ RSpec.describe AthletesController, type: :controller do
         expect(response).to have_http_status(:see_other)
         expect(response).to redirect_to(athlete)
       end
+
+      it "responds with JSON format" do
+        athlete = athletes(:john_doe)
+        put :update, params: { id: athlete.to_param, athlete: new_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
@@ -93,6 +124,16 @@ RSpec.describe AthletesController, type: :controller do
         athlete = athletes(:john_doe)
         put :update, params: { id: athlete.to_param, athlete: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        athlete = athletes(:john_doe)
+        put :update, params: { id: athlete.to_param, athlete: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -110,6 +151,12 @@ RSpec.describe AthletesController, type: :controller do
       delete :destroy, params: { id: athlete.to_param }, session: valid_session
       expect(response).to have_http_status(:see_other)
       expect(response).to redirect_to(athletes_path)
+    end
+
+    it "responds with JSON format" do
+      athlete = Athlete.create!(name: 'Test Athlete', phone: 1112223333, date_of_birth: Date.today)
+      delete :destroy, params: { id: athlete.to_param, format: :json }, session: valid_session
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

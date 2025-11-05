@@ -3,6 +3,9 @@ require 'rails_helper'
 RSpec.describe MatchesController, type: :controller do
   fixtures :matches, :payments, :athletes
 
+  # Enable view rendering for JSON responses
+  render_views
+
   let(:valid_attributes) {
     { date: Date.today, location: 'COPM' }
   }
@@ -55,12 +58,30 @@ RSpec.describe MatchesController, type: :controller do
         post :create, params: { match: valid_attributes }, session: valid_session
         expect(response).to redirect_to(Match.last)
       end
+
+      it "responds with JSON format" do
+        post :create, params: { match: valid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:created)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
       it "renders a response with 422 status (i.e. to display the 'new' template)" do
         post :create, params: { match: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        post :create, params: { match: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -85,6 +106,16 @@ RSpec.describe MatchesController, type: :controller do
         expect(response).to have_http_status(:see_other)
         expect(response).to redirect_to(match)
       end
+
+      it "responds with JSON format" do
+        match = matches(:weekend_game)
+        put :update, params: { id: match.to_param, match: new_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:ok)
+        expect(response.body).not_to be_empty
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to have_key('id')
+      end
     end
 
     context "with invalid params" do
@@ -92,6 +123,16 @@ RSpec.describe MatchesController, type: :controller do
         match = matches(:weekend_game)
         put :update, params: { id: match.to_param, match: invalid_attributes }, session: valid_session
         expect(response).to have_http_status(:unprocessable_content)
+      end
+
+      it "responds with JSON format and errors" do
+        match = matches(:weekend_game)
+        put :update, params: { id: match.to_param, match: invalid_attributes, format: :json }, session: valid_session
+        expect(response.content_type).to include('application/json')
+        expect(response).to have_http_status(:unprocessable_content)
+        parsed_response = JSON.parse(response.body)
+        expect(parsed_response).to be_a(Hash)
+        expect(parsed_response).not_to be_empty
       end
     end
   end
@@ -109,6 +150,12 @@ RSpec.describe MatchesController, type: :controller do
       delete :destroy, params: { id: match.to_param }, session: valid_session
       expect(response).to have_http_status(:see_other)
       expect(response).to redirect_to(matches_path)
+    end
+
+    it "responds with JSON format" do
+      match = Match.create!(date: Date.today, location: 'Test Location')
+      delete :destroy, params: { id: match.to_param, format: :json }, session: valid_session
+      expect(response).to have_http_status(:no_content)
     end
   end
 end

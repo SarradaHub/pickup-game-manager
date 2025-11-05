@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:16
@@ -20,7 +18,9 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     image: pickup_game_manager:dev
     container_name: pgm-app
     restart: unless-stopped
@@ -33,16 +33,34 @@ services:
       POSTGRES_USER: lmafra
       POSTGRES_PASSWORD: password
       POSTGRES_DB: pickup_game_manager_development
+      # Rails development optimizations
+      RAILS_MAX_THREADS: 5
+      WEB_CONCURRENCY: 1
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "3000:80"
+      - "3000:3000"
     volumes:
+      # Mount source code for live reloading (cached for better performance)
+      - .:/rails:cached
+      # Exclude directories that should be container-specific
+      - /rails/tmp
+      - /rails/log
+      - /rails/node_modules
+      - /rails/public/assets
+      - /rails/public/packs
+      # Bundle cache for faster gem installs
+      - bundle_cache:/usr/local/bundle
+      # Active Storage files
       - rails_storage:/rails/storage
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
 
 volumes:
   pgdata:
   rails_storage:
+  bundle_cache:
 
 

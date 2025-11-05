@@ -48,27 +48,144 @@ Additional routes:
 ### Tech stack
 - Rails 8, Ruby 3.3 (see `.ruby-version` if present)
 - PostgreSQL
+- Docker & Docker Compose (for development)
 - Importmap, Turbo, Stimulus
 - Solid Queue/Cache/Cable (configured gems present)
 - RSpec for tests
 
 ### Getting started
-1. Prerequisites:
-   - Ruby and Bundler installed
-   - PostgreSQL running and accessible
-2. Setup environment variables:
-   - Copy `env.example` to `.env` (for development) and adjust:
+
+#### Option 1: Using Docker (Recommended)
+
+The easiest way to get started is using Docker Compose:
+
+1. **Prerequisites:**
+   - Docker and Docker Compose installed
+   - Git
+
+2. **Setup environment variables:**
+   - Copy `env.example` to `.env` (for development) and adjust if needed:
      - `POSTGRES_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
-3. Install dependencies:
-   - `bundle install`
-4. Database setup:
-   - `bin/rails db:create db:migrate`
-5. Run the app:
-   - `bin/rails server`
+
+3. **Start development environment:**
+   ```bash
+   # Unix/Linux/macOS
+   ./script/dev.sh start
+   
+   # Windows
+   script\dev.bat start
+   ```
+   
+   This will:
+   - Build the Docker containers
+   - Start PostgreSQL and Rails
+   - Set up the database automatically
+   - Make the app available at http://localhost:3000
+
+4. **Access the application:**
+   - Visit http://localhost:3000
+   - The database will be automatically created and migrated
+
+**Useful development commands:**
+```bash
+# View logs
+./script/dev.sh logs
+
+# Open Rails console
+./script/dev.sh console
+
+# Run database migrations
+./script/dev.sh db:migrate
+
+# Seed the database
+./script/dev.sh db:seed
+
+# Stop containers
+./script/dev.sh stop
+
+# Restart containers
+./script/dev.sh restart
+
+# View status
+./script/dev.sh status
+```
+
+#### Option 2: Local Development (Without Docker)
+
+1. **Prerequisites:**
+   - Ruby 3.3 and Bundler installed
+   - PostgreSQL running and accessible
+
+2. **Setup environment variables:**
+   - Copy `env.example` to `.env` and adjust:
+     - `POSTGRES_HOST`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
+
+3. **Install dependencies:**
+   ```bash
+   bundle install
+   ```
+
+4. **Database setup:**
+   ```bash
+   bin/rails db:create db:migrate
+   ```
+
+5. **Run the app:**
+   ```bash
+   bin/rails server
+   ```
    - Visit http://localhost:3000
 
 ### Running tests
-- `bundle exec rspec`
+
+#### Using Docker (Recommended)
+
+```bash
+# Unix/Linux/macOS
+./script/run_tests.sh
+
+# Windows
+script\run_tests.bat
+```
+
+**Test script options:**
+```bash
+# Fastest - no reset, skip checks (for quick iterations)
+./script/run_tests.sh --skip-checks
+
+# Fast reset when needed (recommended)
+./script/run_tests.sh --reset
+
+# Keep containers running for multiple test runs
+./script/run_tests.sh --keep-containers --reset
+
+# Run tests in parallel (if parallel_tests gem is installed)
+./script/run_tests.sh --parallel
+
+# Run specific test file
+./script/run_tests.sh spec/models/athlete_spec.rb
+
+# Full database reset (slower but thorough)
+./script/run_tests.sh --full-reset
+
+# Reset Docker containers and rebuild
+./script/run_tests.sh --reset-docker
+```
+
+**Available options:**
+- `--reset` / `-r`: Fast database reset (truncate, recommended)
+- `--no-reset` / `-n`: Skip database reset (fastest, default)
+- `--skip-checks` / `-s`: Skip container health checks (fastest startup)
+- `--keep-containers` / `-k`: Keep containers running after tests
+- `--parallel` / `-p`: Run tests in parallel
+- `--full-reset` / `-F`: Full database reset (drop/create)
+- `--reset-docker` / `-d`: Reset Docker containers and rebuild
+
+#### Local Testing (Without Docker)
+
+```bash
+bundle exec rspec
+```
 
 ### Data model (overview)
 - `Athlete(name, phone, date_of_birth)`

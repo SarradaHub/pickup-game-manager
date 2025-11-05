@@ -1,0 +1,67 @@
+# syntax=docker/dockerfile:1
+# Development-optimized Dockerfile
+# This is a simplified Dockerfile for development use with docker-compose
+
+ARG RUBY_VERSION=3.3.6
+FROM docker.io/library/ruby:${RUBY_VERSION}-slim
+
+# Install system dependencies
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    git \
+    libvips \
+    libyaml-dev \
+    pkg-config \
+    curl \
+    libjemalloc2 \
+    dos2unix \
+    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Set working directory
+WORKDIR /rails
+
+# Create rails user with proper permissions
+RUN groupadd --system --gid 1000 rails && \
+    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
+    mkdir -p /rails && \
+    chown -R rails:rails /rails
+
+# Set environment variables for development
+ENV RAILS_ENV=development \
+    BUNDLE_PATH=/usr/local/bundle \
+    BUNDLE_WITHOUT="" \
+    BUNDLE_JOBS=4 \
+    BUNDLE_RETRY=3
+
+# Switch to rails user
+USER rails
+
+# Install bundler
+RUN gem install bundler
+
+# Copy Gemfile and Gemfile.lock first for better layer caching
+COPY --chown=rails:rails Gemfile Gemfile.lock ./
+
+# Install gems (don't use BUNDLE_DEPLOYMENT in dev for flexibility)
+RUN bundle install --jobs=${BUNDLE_JOBS} --retry=${BUNDLE_RETRY} && \
+    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
+
+# Copy application code (will be overridden by volume mount in docker-compose)
+COPY --chown=rails:rails . .
+
+# Normalize line endings for bin scripts
+RUN find ./bin -type f -maxdepth 1 -exec dos2unix {} + 2>/dev/null || true && \
+    chmod +x ./bin/* 2>/dev/null || true
+
+# Precompile bootsnap for faster boot times (optional, but helps)
+RUN bundle exec bootsnap precompile --gemfile 2>/dev/null || true
+
+# Expose port
+EXPOSE 3000
+
+# Entrypoint prepares the database
+ENTRYPOINT ["/rails/bin/docker-entrypoint"]
+
+# Default command (can be overridden in docker-compose)
+CMD ["./bin/rails", "server", "-b", "0.0.0.0", "-p", "3000"]

@@ -46,6 +46,7 @@
 # Ignore development files
 /.devcontainer
 
-# Ignore Docker-related files
+# Ignore Docker-related files (but keep Dockerfile.dev for development)
 /.dockerignore
-/Dockerfile*
+/Dockerfile
+# Keep Dockerfile.dev for development builds
