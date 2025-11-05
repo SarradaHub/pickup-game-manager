@@ -99,7 +99,7 @@ class EquilibriumPoint
 
       total_value = type_expenses.sum { |expense| expense.unit_value * expense.quantity }
       total_quantity = type_expenses.sum(&:quantity)
-      
+
       unit_values[type] = {
         unit_value: (total_quantity > 0 ? (total_value.to_f / total_quantity).round(2) : 0.0),
         count: type_expenses.count,
