@@ -6,137 +6,22 @@ on:
     branches: [ main ]
 
 jobs:
-  scan_ruby:
-    runs-on: ubuntu-latest
-    name: Security Scan (Brakeman)
+  contracts:
+    uses: LMafra/SarradaHub/platform/ci/workflows/contracts.yaml@main
+    with:
+      working-directory: .
+      install-command: bundle install
+      test-command: bundle exec rspec spec/jobs/events/publish_payment_received_job_spec.rb
+      schema-glob: platform/contracts/schemas/finance/payment.received.v1.json
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        continue-on-error: true
-        run: bin/brakeman --no-pager --format json --output brakeman.json
-
-      - name: Upload Brakeman report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: brakeman-report
-          path: brakeman.json
-          retention-days: 7
-          if-no-files-found: ignore
-
-  scan_js:
-    runs-on: ubuntu-latest
-    name: JavaScript Security Scan
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
-
-  lint:
-    runs-on: ubuntu-latest
-    name: Code Style (RuboCop)
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
-
-  code_quality:
-    runs-on: ubuntu-latest
-    name: Code Quality (RubyCritic)
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Run RubyCritic code quality analysis
-        run: bundle exec rubycritic app lib --format html --minimum-score 0 --no-browser
-
-      - name: Upload RubyCritic report
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: rubycritic-report
-          path: tmp/rubycritic/
-          retention-days: 7
-
-  test:
-    runs-on: ubuntu-latest
-    name: Tests
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_DB: pickup_game_manager_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - name: Install packages
-        run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git libyaml-dev pkg-config google-chrome-stable
-
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
-
-      - name: Run tests
-        env:
-          RAILS_ENV: test
-          POSTGRES_HOST: localhost
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: pickup_game_manager_test
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare && bundle exec rspec
-
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
+  rails-ci:
+    uses: LMafra/SarradaHub/platform/ci/workflows/rails-service-ci.yaml@main
+    with:
+      working-directory: .
+      ruby-version: '3.3.6'
+      run-brakeman: true
+      run-importmap-audit: true
+      run-rubycritic: true
+      postgres-db: pickup_game_manager_test
+      rspec-command: bin/rails db:test:prepare && bundle exec rspec
+      extra-apt-packages: "google-chrome-stable"
