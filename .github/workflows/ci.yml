@@ -7,7 +7,7 @@ on:
 
 jobs:
   contracts:
-    uses: LMafra/SarradaHub/platform/ci/workflows/contracts.yaml@main
+    uses: SarradaHub/platform/ci/workflows/contracts.yaml@main
     with:
       working-directory: .
       install-command: bundle install
