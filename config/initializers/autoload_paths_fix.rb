@@ -11,7 +11,7 @@ Array.class_eval do
 
   def unshift(*args)
     # Check if this is a frozen autoload paths array
-    if frozen? && defined?(Rails) && Rails.application && 
+    if frozen? && defined?(Rails) && Rails.application &&
        self.equal?(Rails.application.config.autoload_paths)
       # Make it mutable and then unshift
       Rails.application.config.autoload_paths = dup
@@ -21,4 +21,3 @@ Array.class_eval do
     end
   end
 end
-
