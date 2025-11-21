@@ -58,4 +58,3 @@ module IdentityServiceClient
     end
   end
 end
-

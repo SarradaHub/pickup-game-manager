@@ -11,7 +11,7 @@ class HealthController < ApplicationController
   def ready
     # Check database connection
     ActiveRecord::Base.connection.execute("SELECT 1")
-    
+
     render json: {
       status: "ready",
       service: "pickup-game-manager",
@@ -25,4 +25,3 @@ class HealthController < ApplicationController
     }, status: :service_unavailable
   end
 end
-

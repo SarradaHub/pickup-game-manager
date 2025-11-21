@@ -13,4 +13,3 @@ if Rails.env.production? || ENV["CONSUL_ENABLED"] == "true"
     ConsulService.deregister_service
   end
 end
-

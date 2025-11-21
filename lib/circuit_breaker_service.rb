@@ -7,11 +7,11 @@ module CircuitBreakerService
     def create_client(service_name, base_url = nil)
       # Get service URL from Consul if not provided
       url = base_url || ConsulService.discover_service(service_name) || base_url
-      
+
       return nil unless url
 
       circuit = Circuitbox.circuit(service_name.to_sym, {
-        exceptions: [Faraday::Error, Timeout::Error],
+        exceptions: [ Faraday::Error, Timeout::Error ],
         timeout: 5,
         sleep_window: 60,
         volume_threshold: 10,
@@ -25,7 +25,7 @@ module CircuitBreakerService
           interval: 0.05,
           interval_randomness: 0.5,
           backoff_factor: 2,
-          retry_statuses: [429, 500, 502, 503, 504]
+          retry_statuses: [ 429, 500, 502, 503, 504 ]
         }
         conn.adapter Faraday.default_adapter
       end.tap do |client|
@@ -50,4 +50,3 @@ module CircuitBreakerService
     end
   end
 end
-

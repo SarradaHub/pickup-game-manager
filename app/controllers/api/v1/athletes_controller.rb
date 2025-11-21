@@ -1,7 +1,7 @@
 module Api
   module V1
     class AthletesController < BaseController
-      before_action :set_athlete, only: [:show, :update, :destroy]
+      before_action :set_athlete, only: [ :show, :update, :destroy ]
 
       def index
         @athletes = Athlete.all
@@ -46,4 +46,3 @@ module Api
     end
   end
 end
-

@@ -16,7 +16,7 @@ module ConsulService
       service_definition = {
         ID: service_name,
         Name: service_name,
-        Tags: ["rails", "api", "v1"],
+        Tags: [ "rails", "api", "v1" ],
         Address: service_address,
         Port: service_port,
         Check: {
@@ -67,4 +67,3 @@ module ConsulService
     end
   end
 end
-
