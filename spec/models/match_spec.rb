@@ -70,11 +70,6 @@ RSpec.describe Match, type: :model do
       expect(match.save).to be true
       expect(match.reload.date).to eq(Date.today + 1)
     end
-
-    # it 'can delete a match' do
-    #   match = matches(:night_match)
-    #   expect { match.destroy }.to change(Match, :count).by(-1)
-    # end
   end
 
   describe 'associations' do

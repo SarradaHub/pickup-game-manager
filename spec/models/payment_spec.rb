@@ -111,11 +111,6 @@ RSpec.describe Payment, type: :model do
       expect(payment.reload.status).to eq('pending')
       expect(payment.reload.amount).to eq(25.0)
     end
-
-    # it 'can delete a payment' do
-    #   payment = payments(:night_payment)
-    #   expect { payment.destroy }.to change(Payment, :count).by(-1)
-    # end
   end
 
   describe 'relationships' do

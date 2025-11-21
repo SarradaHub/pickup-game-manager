@@ -1,20 +1,28 @@
 Rails.application.routes.draw do
+  # API routes under /api/v1 namespace
+  namespace :api do
+    namespace :v1 do
+      resources :payments, defaults: { format: :json }
+      resources :matches, defaults: { format: :json }
+      resources :athletes, defaults: { format: :json }
+      resources :expenses, defaults: { format: :json }
+      resources :incomes, defaults: { format: :json }
+    end
+  end
+
+  # Legacy routes (keep for backward compatibility)
   resources :payments
   resources :matches
   resources :athletes
   resources :expenses
   resources :incomes
   get "dashboard", to: "dashboard#index"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
   get "up" => "rails/health#show", as: :rails_health_check
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # Standardized health check endpoints for microservices
+  get "health", to: "health#health"
+  get "ready", to: "health#ready"
 
-  # Defines the root path route ("/")
   root "dashboard#index"
 end
