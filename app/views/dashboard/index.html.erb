@@ -537,11 +537,8 @@
       tab.addEventListener('click', function() {
         const period = this.getAttribute('data-period');
 
-        // Remove active class from all tabs and periods
         chartTabs.forEach(t => t.classList.remove('active'));
         chartPeriods.forEach(p => p.classList.remove('active'));
-
-        // Add active class to clicked tab and corresponding period
         this.classList.add('active');
         document.getElementById(period + '-chart').classList.add('active');
       });

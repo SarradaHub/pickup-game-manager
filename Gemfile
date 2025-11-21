@@ -45,6 +45,12 @@ gem "money-rails"
 # Pagination (faster than kaminari)
 gem "pagy"
 
+# Microservices integration
+gem "diplomat" # Consul client
+gem "circuitbox" # Circuit breaker pattern
+gem "faraday" # HTTP client
+gem "faraday-retry" # HTTP retry logic
+
 # Form helpers (optional - uncomment if you want better form building)
 # gem "simple_form"
 

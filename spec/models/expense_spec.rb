@@ -177,12 +177,7 @@ RSpec.describe Expense, type: :model do
 
       expect(expense.save).to be true
       expect(expense.reload.quantity).to eq(5)
-      expect(expense.total_value).to eq(3250.0) # 650.0 * 5
+      expect(expense.total_value).to eq(3250.0)
     end
-
-    # it 'can delete an expense' do
-    #   expense = expenses(:equipment)
-    #   expect { expense.destroy }.to change(Expense, :count).by(-1)
-    # end
   end
 end
