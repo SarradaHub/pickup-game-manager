@@ -1,16 +1,56 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Despesas" %>
 
-<% content_for :title, "Expenses" %>
+<% if notice.present? %>
+  <div class="flex gap-3 p-4 rounded-lg border bg-success-50 text-success-800 border-success-200 mb-6" role="alert" aria-live="polite">
+    <div class="flex-1 min-w-0">
+      <div class="text-sm"><%= notice %></div>
+    </div>
+  </div>
+<% end %>
 
-<h1>Expenses</h1>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <h1 class="text-3xl font-bold mb-2">Despesas</h1>
+    <p class="text-sm text-neutral-600">Gerencie todas as despesas cadastradas no sistema</p>
+  </header>
 
-<div id="expenses">
-  <% @expenses.each do |expense| %>
-    <%= render expense %>
-    <p>
-      <%= link_to "Show this expense", expense %>
-    </p>
-  <% end %>
+  <!-- Expenses Grid -->
+  <section class="md:col-span-12" aria-labelledby="expenses-heading">
+    <% if @expenses.any? %>
+      <div id="expenses" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @expenses.each do |expense| %>
+          <div>
+            <%= render expense %>
+            <p class="mt-2">
+              <%= link_to expense_path(expense), 
+                  class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-3 py-1.5 text-sm gap-1.5",
+                  aria: { label: "Ver detalhes da despesa" } do %>
+                Ver detalhes
+              <% end %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="rounded-lg bg-white border border-neutral-200 p-6 text-center">
+        <p class="text-neutral-500 mb-4">Nenhuma despesa cadastrada ainda.</p>
+        <%= link_to new_expense_path, 
+            class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-4 py-2 text-base gap-2",
+            aria: { label: "Cadastrar primeira despesa" } do %>
+          Cadastrar Primeira Despesa
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <!-- Actions Section -->
+  <section class="md:col-span-12">
+    <%= link_to new_expense_path, 
+        class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-4 py-2 text-base gap-2",
+        aria: { label: "Cadastrar nova despesa" } do %>
+      <%= icon('📝', size: 'md', aria_hidden: true) %>
+      <span>Nova Despesa</span>
+    <% end %>
+  </section>
 </div>
-
-<%= link_to "New expense", new_expense_path %>

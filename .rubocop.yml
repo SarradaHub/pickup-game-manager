@@ -1,8 +1,258 @@
-# Omakase Ruby styling for Rails
-inherit_gem: { rubocop-rails-omakase: rubocop.yml }
+# Community Ruby Style Guide Configuration
+# Based on https://github.com/rubocop/ruby-style-guide
 
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+plugins:
+  - rubocop-rails
+  - rubocop-rspec
+  - rubocop-performance
+  - rubocop-rake
+  - rubocop-packaging
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+  SuggestExtensions: false
+  Exclude:
+    - 'db/schema.rb'
+    - 'db/migrate/*'
+    - 'db/seeds.rb'
+    - 'db/queue_schema.rb'
+    - 'db/cache_schema.rb'
+    - 'db/cable_schema.rb'
+    - 'bin/*'
+    - 'node_modules/**/*'
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+
+# Style Guide: Use double quotes for strings
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/StringLiteralsInInterpolation:
+  EnforcedStyle: double_quotes
+
+# Style Guide: Use Ruby 1.9+ hash syntax
+Style/HashSyntax:
+  EnforcedStyle: ruby19
+
+# Style Guide: Prefer single-line conditionals for simple cases
+# (Configured later in file)
+
+# Style Guide: Use %w for arrays of words
+Style/WordArray:
+  MinSize: 3
+
+# Style Guide: Prefer && and || over and and or
+Style/AndOr:
+  EnforcedStyle: always
+
+# Style Guide: Use parentheses for method calls with arguments
+Style/MethodCallWithArgsParentheses:
+  Enabled: true
+
+# Style Guide: Prefer trailing commas in multiline collections
+Style/TrailingCommaInArguments:
+  EnforcedStyleForMultiline: comma
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: comma
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: comma
+
+# Style Guide: Line length (80 is traditional, but 120 is common in modern codebases)
+Layout/LineLength:
+  Max: 120
+  Exclude:
+    - 'config/**/*'
+    - 'db/**/*'
+
+# Style Guide: Use 2 spaces for indentation
+Layout/IndentationWidth:
+  Width: 2
+
+# Style Guide: No trailing whitespace
+Layout/TrailingWhitespace:
+  Enabled: true
+
+# Style Guide: Final newline
+Layout/TrailingEmptyLines:
+  Enabled: true
+
+# Style Guide: Use spaces around operators
+Layout/SpaceAroundOperators:
+  Enabled: true
+
+# Style Guide: Use spaces after commas
+Layout/SpaceAfterComma:
+  Enabled: true
+
+# Style Guide: Use spaces inside hash literals (no space for empty, space for non-empty)
+Layout/SpaceInsideHashLiteralBraces:
+  EnforcedStyle: space
+
+# Style Guide: Use spaces inside array literals
+Layout/SpaceInsideArrayLiteralBrackets:
+  EnforcedStyle: no_space
+
+# Style Guide: Prefer def with parentheses
+Style/DefWithParentheses:
+  Enabled: true
+
+# Style Guide: Use %i for arrays of symbols
+Style/SymbolArray:
+  MinSize: 3
+
+# Style Guide: Prefer single-line methods when possible
+# Allow single-line methods for empty methods (Ruby style guide recommendation)
+Style/SingleLineMethods:
+  AllowIfMethodIsEmpty: true
+
+# Style Guide: Prefer unless over if !condition
+Style/NegatedIf:
+  Enabled: true
+
+# Style Guide: Prefer unless with else
+Style/NegatedIfElseCondition:
+  Enabled: true
+
+# Style Guide: Use %r for complex regex
+Style/RegexpLiteral:
+  EnforcedStyle: slashes
+  AllowInnerSlashes: true
+
+# Style Guide: Prefer %Q for complex strings
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    '%': '()'
+    '%i': '()'
+    '%q': '()'
+    '%Q': '()'
+    '%r': '()'
+    '%s': '()'
+    '%w': '()'
+    '%W': '()'
+    '%x': '()'
+
+# Style Guide: Use frozen string literal comments
+Style/FrozenStringLiteralComment:
+  Enabled: false
+  # Many Rails apps don't use this, but can be enabled if desired
+
+# Style Guide: Prefer map over collect, find over detect, etc.
+Style/CollectionMethods:
+  PreferredMethods:
+    collect: 'map'
+    inject: 'reduce'
+    detect: 'find'
+    find_all: 'select'
+
+# Style Guide: Use guard clauses
+Style/GuardClause:
+  Enabled: true
+
+# Style Guide: Prefer modifier if/unless usage
+Style/IfUnlessModifier:
+  Enabled: true
+
+# Style Guide: Use raise instead of fail
+Style/SignalException:
+  EnforcedStyle: only_raise
+
+# Style Guide: Use Kernel methods without receiver
+Style/RedundantSelf:
+  Enabled: true
+
+# Style Guide: Prefer is_a? over kind_of?
+Style/PreferredHashMethods:
+  Enabled: true
+
+# Performance cops
+Performance/RedundantMatch:
+  Enabled: true
+Performance/RedundantMerge:
+  Enabled: true
+Performance/StartWith:
+  Enabled: true
+Performance/EndWith:
+  Enabled: true
+
+# Rails-specific configurations
+Rails:
+  Enabled: true
+
+Rails/ApplicationRecord:
+  Enabled: true
+
+Rails/InverseOf:
+  Enabled: true
+
+Rails/ReadWriteAttribute:
+  Enabled: true
+
+Rails/SaveBang:
+  Enabled: true
+
+# RSpec-specific configurations
+RSpec:
+  Enabled: true
+
+RSpec/ExampleLength:
+  Max: 20
+
+RSpec/MultipleExpectations:
+  Max: 8
+
+RSpec/NestedGroups:
+  Max: 4
+
+# Disable some overly strict cops
+Style/Documentation:
+  Enabled: false
+
+# Rails-specific: I18n locale texts (best practice but not style guide requirement)
+Rails/I18nLocaleTexts:
+  Enabled: false
+
+# Rails-specific: Output safety (can be legitimate in helpers)
+Rails/OutputSafety:
+  Enabled: false
+
+# Rails-specific: Unique validation without index (database concern, not style)
+Rails/UniqueValidationWithoutIndex:
+  Enabled: false
+
+# Rails-specific: Dependent option (can be intentional)
+Rails/HasManyOrHasOneDependent:
+  Enabled: false
+
+# Style: Multiline block chain (can be acceptable in some cases)
+Style/MultilineBlockChain:
+  Enabled: false
+
+# Performance: Map method chain (can be acceptable in tests)
+Performance/MapMethodChain:
+  Exclude:
+    - 'spec/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'config/**/*'
+    - 'db/**/*'
+
+Metrics/MethodLength:
+  Max: 30
+
+Metrics/ClassLength:
+  Max: 300
+
+Metrics/ModuleLength:
+  Max: 300
+
+Metrics/AbcSize:
+  Max: 30
+
+Metrics/CyclomaticComplexity:
+  Max: 15
+
+Metrics/PerceivedComplexity:
+  Max: 15

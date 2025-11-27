@@ -1,32 +1,30 @@
-<div id="<%= dom_id payment %>">
-  <p>
-    <strong>Date:</strong>
-    <%= payment.date %>
-  </p>
-
-  <p>
-    <strong>Status:</strong>
-    <%= payment.status %>
-  </p>
-
-  <p>
-    <strong>Athlete:</strong>
-    <%= payment.athlete_id %>
-  </p>
-
-  <p>
-    <strong>Match:</strong>
-    <%= payment.match_id %>
-  </p>
-
-  <p>
-    <strong>Description:</strong>
-    <%= payment.description %>
-  </p>
-
-  <p>
-    <strong>Amount:</strong>
-    <%= payment.amount %>
-  </p>
-
+<div id="<%= dom_id payment %>" class="rounded-lg bg-white border border-neutral-200 p-6 hover:shadow-md transition-shadow">
+  <div class="text-neutral-700 space-y-2">
+    <p class="text-sm font-medium">
+      <span class="text-neutral-500">Data:</span>
+      <span class="text-neutral-900"><%= payment.date.strftime("%d/%m/%Y") if payment.date.respond_to?(:strftime) %><%= payment.date unless payment.date.respond_to?(:strftime) %></span>
+    </p>
+    <p class="text-sm font-medium">
+      <span class="text-neutral-500">Status:</span>
+      <span class="text-neutral-900"><%= payment.status %></span>
+    </p>
+    <p class="text-sm font-medium">
+      <span class="text-neutral-500">Atleta:</span>
+      <span class="text-neutral-900"><%= payment.athlete.name if payment.athlete %><%= payment.athlete_id unless payment.athlete %></span>
+    </p>
+    <p class="text-sm font-medium">
+      <span class="text-neutral-500">Jogo:</span>
+      <span class="text-neutral-900"><%= payment.match.location if payment.match %><%= payment.match_id unless payment.match %></span>
+    </p>
+    <% if payment.description.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Descrição:</span>
+        <span class="text-neutral-900"><%= payment.description %></span>
+      </p>
+    <% end %>
+    <p class="text-sm font-medium">
+      <span class="text-neutral-500">Valor:</span>
+      <span class="text-neutral-900 font-semibold">R$<%= number_with_precision(payment.amount, precision: 2) %></span>
+    </p>
+  </div>
 </div>

@@ -1,11 +1,25 @@
-<% content_for :title, "New expense" %>
+<% content_for :title, "Nova Despesa" %>
 
-<h1>New expense</h1>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <nav class="mb-4" aria-label="Breadcrumb">
+      <%= link_to expenses_path, 
+          class: "text-sm text-neutral-600 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md px-2 py-1 transition-colors",
+          aria: { label: "Voltar para lista de despesas" } do %>
+        <span class="mr-1" aria-hidden="true">←</span>
+        <span>Voltar para despesas</span>
+      <% end %>
+    </nav>
+    <h1 class="text-3xl font-bold mb-2">Nova Despesa</h1>
+    <p class="text-sm text-neutral-600">Preencha os dados abaixo para cadastrar uma nova despesa no sistema</p>
+  </header>
 
-<%= render "form", expense: @expense %>
-
-<br>
-
-<div>
-  <%= link_to "Back to expenses", expenses_path %>
+  <!-- Form Section -->
+  <section class="md:col-span-12">
+    <div class="rounded-lg bg-white border border-neutral-200 p-6">
+      <h2 class="sr-only">Formulário de Cadastro</h2>
+      <%= render "form", expense: @expense %>
+    </div>
+  </section>
 </div>

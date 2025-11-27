@@ -3,8 +3,8 @@ source "https://rubygems.org"
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.1.1"
 # The modern asset pipeline for Rails [https://github.com/rails/propshaft]
-gem "propshaft"
 gem "pg"
+gem "propshaft"
 # Use the Puma web server [https://github.com/puma/puma]
 gem "puma", ">= 5.0"
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
@@ -20,12 +20,12 @@ gem "jbuilder"
 # gem "bcrypt", "~> 3.1.7"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem "tzinfo-data", platforms: %i[ windows jruby ]
+gem "tzinfo-data", platforms: %i(windows jruby)
 
 # Use the database-backed adapters for Rails.cache, Active Job, and Action Cable
+gem "solid_cable"
 gem "solid_cache"
 gem "solid_queue"
-gem "solid_cable"
 
 # Reduces boot times through caching; required in config/boot.rb
 gem "bootsnap", require: false
@@ -39,6 +39,10 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
+# Tailwind CSS for Rails
+gem "tailwindcss-rails"
+gem "tailwindcss-ruby"
+
 # Money handling for financial calculations
 gem "money-rails"
 
@@ -46,8 +50,8 @@ gem "money-rails"
 gem "pagy"
 
 # Microservices integration
-gem "diplomat" # Consul client
 gem "circuitbox" # Circuit breaker pattern
+gem "diplomat" # Consul client
 gem "faraday" # HTTP client
 gem "faraday-retry" # HTTP retry logic
 
@@ -60,13 +64,28 @@ gem "faraday-retry" # HTTP retry logic
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
-  gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
+  gem "debug", platforms: %i(mri windows), require: "debug/prelude"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", "~> 7.1", require: false
 
-  # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
-  gem "rubocop-rails-omakase", require: false
+  # Code quality and linting
+  gem "rubocop-packaging"
+  gem "rubocop-performance"
+  gem "rubocop-rails"
+  gem "rubocop-rake"
+  gem "rubocop-rspec"
+
+  # Code quality analysis
+  gem "rubycritic", require: false
+
+  # Testing
+  gem "database_cleaner-active_record"
+  gem "rspec-rails"
+
+  # Testing helpers
+  gem "faker" # Generate fake data for factories
+  gem "timecop" # Freeze time in tests
 end
 
 group :development do
@@ -79,9 +98,6 @@ group :development do
   # Better error pages with interactive debugging
   gem "better_errors"
   gem "binding_of_caller"
-
-  # Performance profiling
-  gem "rack-mini-profiler"
 
   # N+1 query detection
   gem "bullet"
@@ -96,32 +112,13 @@ group :development do
   gem "letter_opener"
 end
 
-group :development, :test do
-  gem "rspec-rails"
-  gem "database_cleaner-active_record"
-
-  # Code quality and linting (rubocop-rails-omakase already in group above)
-  gem "rubocop-performance"
-  gem "rubocop-rspec"
-  gem "rubocop-rails"
-  gem "rubocop-rake"
-  gem "rubocop-packaging"
-
-  # Code quality analysis
-  gem "rubycritic", require: false
-
-  # Testing helpers
-  gem "timecop" # Freeze time in tests
-  gem "faker" # Generate fake data for factories
-end
-
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
-  gem "selenium-webdriver"
-  gem "rails-controller-testing"
-  gem "shoulda-matchers"
   gem "factory_bot_rails"
+  gem "rails-controller-testing"
+  gem "selenium-webdriver"
+  gem "shoulda-matchers"
 
   # Test coverage
   gem "simplecov", require: false

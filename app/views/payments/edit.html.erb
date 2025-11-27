@@ -1,12 +1,41 @@
-<% content_for :title, "Editing payment" %>
+<% content_for :title, "Editar Pagamento" %>
 
-<h1>Editing payment</h1>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <nav class="mb-4" aria-label="Breadcrumb">
+      <%= link_to payment_path(@payment), 
+          class: "text-sm text-neutral-600 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md px-2 py-1 transition-colors",
+          aria: { label: "Voltar para detalhes do pagamento" } do %>
+        <span class="mr-1" aria-hidden="true">←</span>
+        <span>Voltar para detalhes</span>
+      <% end %>
+    </nav>
+    <h1 class="text-3xl font-bold mb-2">Editar Pagamento</h1>
+    <p class="text-sm text-neutral-600">Atualize as informações do pagamento no sistema</p>
+  </header>
 
-<%= render "form", payment: @payment %>
+  <!-- Form Section -->
+  <section class="md:col-span-12">
+    <div class="rounded-lg bg-white border border-neutral-200 p-6">
+      <h2 class="sr-only">Formulário de Edição</h2>
+      <%= render "form", payment: @payment %>
+    </div>
+  </section>
 
-<br>
-
-<div>
-  <%= link_to "Show this payment", @payment %> |
-  <%= link_to "Back to payments", payments_path %>
+  <!-- Actions Section -->
+  <section class="md:col-span-12">
+    <div class="flex flex-wrap gap-2">
+      <%= link_to payment_path(@payment), 
+          class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-neutral-200 text-neutral-900 hover:bg-neutral-300 focus:ring-neutral-500 active:bg-neutral-400 px-4 py-2 text-base gap-2",
+          aria: { label: "Ver detalhes do pagamento" } do %>
+        Ver Detalhes
+      <% end %>
+      <%= link_to payments_path, 
+          class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-neutral-200 text-neutral-900 hover:bg-neutral-300 focus:ring-neutral-500 active:bg-neutral-400 px-4 py-2 text-base gap-2",
+          aria: { label: "Voltar para lista de pagamentos" } do %>
+        Voltar para Pagamentos
+      <% end %>
+    </div>
+  </section>
 </div>

@@ -9,19 +9,67 @@
  * Consider organizing styles into separate files for maintainability.
  */
 
-/* Import dashboard styles */
-@import "dashboard.css";
+/* Tailwind CSS is loaded separately via stylesheet_link_tag in layout */
+/* The compiled Tailwind CSS is at app/assets/builds/tailwind.css */
+
+/* Design system CSS variables - synced from platform/design-system during build */
+/* Note: The design-system.css is included as a separate stylesheet in the layout */
 
 /* Basic app styling */
 .app-container {
   min-height: 100vh;
-  background: #f7fafc;
+  background: var(--color-neutral-50);
 }
 
 body {
   margin: 0;
   padding: 0;
-  background: #f7fafc;
-  color: #2d3748;
+  background: var(--color-neutral-50);
+  color: var(--color-neutral-700);
   line-height: 1.6;
+}
+
+/* Link Colors - Following UXmatters Color Theory Guidelines */
+/* Blue should be reserved ONLY for links */
+a:link {
+  color: var(--color-primary-600); /* Blue (#2563eb) - default link color */
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #990099; /* Purple/violet for visited links */
+  text-decoration: underline;
+}
+
+a:hover,
+a:active {
+  color: var(--color-error-600); /* Red (#dc2626) for hover/active links */
+  text-decoration: underline;
+}
+
+/* Ensure links in buttons and other styled elements maintain their styling */
+a.button,
+a.btn-primary,
+a.btn-secondary,
+button a,
+[class*="bg-"] a,
+[class*="text-"] a,
+a[class*="inline-flex"][class*="items-center"][class*="justify-center"] {
+  text-decoration: none;
+}
+
+/* Links in buttons should not use link colors - they use button colors */
+a.button:link,
+a.button:visited,
+a.button:hover,
+a.button:active,
+a.btn-primary:link,
+a.btn-primary:visited,
+a.btn-primary:hover,
+a.btn-primary:active,
+a[class*="inline-flex"][class*="items-center"][class*="justify-center"]:link,
+a[class*="inline-flex"][class*="items-center"][class*="justify-center"]:visited,
+a[class*="inline-flex"][class*="items-center"][class*="justify-center"]:hover,
+a[class*="inline-flex"][class*="items-center"][class*="justify-center"]:active {
+  color: inherit !important;
 }

@@ -24,16 +24,16 @@ module IdentityAuthentication
     auth_header = request.headers["Authorization"]
     return nil unless auth_header
 
-    parts = auth_header.split(" ")
+    parts = auth_header.split
     parts[1] if parts.length == 2 && parts[0] == "Bearer"
   end
 
   def render_unauthorized
-    render json: {
-      success: false,
-      message: "Unauthorized",
-      code: "UNAUTHORIZED"
-    }, status: :unauthorized
+    render(json: {
+             success: false,
+             message: "Unauthorized",
+             code: "UNAUTHORIZED",
+           }, status: :unauthorized)
   end
 
   def requires_authentication?

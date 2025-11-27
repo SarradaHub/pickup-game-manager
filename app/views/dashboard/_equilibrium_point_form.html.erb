@@ -1,0 +1,210 @@
+<%# Equilibrium Point Form Partial %>
+<div class="rounded-lg bg-white border border-neutral-200 p-6 mb-6 shadow-sm hover:shadow-md transition-shadow" data-controller="equilibrium-point">
+  <h3 class="text-lg font-semibold text-neutral-900 mb-2 flex items-center gap-2">
+    <span class="w-1 h-5 bg-primary-500 rounded-full"></span>
+    Calcular Novo Ponto de Equilíbrio
+  </h3>
+  <p class="text-sm text-neutral-600 mb-6">
+    Selecione os tipos de receita e despesa para calcular o ponto de equilíbrio. O cálculo é atualizado automaticamente.
+  </p>
+
+  <div class="rounded-lg bg-gradient-to-br from-info-50 to-info-100/50 border-2 border-info-200 p-4 mb-6 shadow-sm">
+    <h4 class="text-base font-semibold text-neutral-900 mb-2 flex items-center gap-2">
+      <span class="w-1 h-4 bg-info-500 rounded-full"></span>
+      O que é o Ponto de Equilíbrio?
+    </h4>
+    <p class="text-sm text-neutral-700 mb-4">O ponto de equilíbrio é o número mínimo de unidades de receita necessárias para cobrir todas as despesas selecionadas. É uma ferramenta importante para planejamento financeiro e tomada de decisões.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="flex gap-3 p-3 rounded-lg bg-gradient-to-r from-success-50/50 to-white border-l-4 border-l-success-400">
+        <div class="flex items-center" aria-hidden="true"><%= icon('💰', size: 'lg', aria_hidden: true) %></div>
+        <div>
+          <h5 class="text-sm font-semibold text-neutral-900 mb-1">Tipos de Receita</h5>
+          <p class="text-xs text-neutral-600">Selecione as fontes de receita que deseja incluir no cálculo. Exemplos: pagamentos diários, mensalidades, etc.</p>
+        </div>
+      </div>
+
+      <div class="flex gap-3 p-3 rounded-lg bg-gradient-to-r from-error-50/50 to-white border-l-4 border-l-error-400">
+        <div class="flex items-center" aria-hidden="true"><%= icon('💸', size: 'lg', aria_hidden: true) %></div>
+        <div>
+          <h5 class="text-sm font-semibold text-neutral-900 mb-1">Tipos de Despesa</h5>
+          <p class="text-xs text-neutral-600">Escolha as categorias de despesas que precisam ser cobertas. Exemplos: equipamentos, aluguel de campo, etc.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Info Section: All Available Options -->
+  <div class="rounded-lg bg-gradient-to-br from-neutral-50 to-white border-2 border-neutral-200 p-6 mb-6 shadow-sm">
+    <h4 class="text-lg font-semibold text-neutral-900 mb-6 flex items-center gap-2">
+      <span class="w-1 h-5 bg-primary-500 rounded-full"></span>
+      Informações das Opções Disponíveis
+    </h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Income Types Info -->
+      <div class="rounded-lg bg-white border-2 border-success-200 p-4 shadow-sm">
+        <h5 class="text-base font-semibold text-success-700 mb-4 flex items-center gap-2">
+          <span class="w-1 h-4 bg-success-500 rounded-full"></span>
+          Tipos de Receita Disponíveis
+        </h5>
+        <div class="space-y-3">
+          <% if @income_types_metadata.present? && @income_types_metadata.respond_to?(:each) %>
+            <% @income_types_metadata.each do |name, metadata| %>
+              <div class="rounded-lg bg-gradient-to-r from-success-50/50 to-white border-l-4 border-l-success-400 border-r border-t border-b border-success-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div class="font-semibold text-neutral-900 mb-2 text-sm"><%= name %></div>
+                <% if metadata.present? && metadata[:description].present? %>
+                  <div class="text-xs text-neutral-600 mb-3 italic"><%= metadata[:description] %></div>
+                <% end %>
+                <% if metadata.present? %>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Média</span>
+                      <span class="font-semibold text-success-700">R$<%= number_with_precision(metadata[:avg_unit_value] || 0, precision: 2) %></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Total</span>
+                      <span class="font-semibold text-success-700">R$<%= number_with_precision(metadata[:total_value] || 0, precision: 2) %></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Registros</span>
+                      <span class="font-semibold text-success-700"><%= metadata[:record_count] || 0 %></span>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="rounded-lg bg-neutral-50 border border-neutral-200 p-4 text-center">
+              <p class="text-sm text-neutral-500">Nenhum tipo de receita disponível</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Expense Types Info -->
+      <div class="rounded-lg bg-white border-2 border-error-200 p-4 shadow-sm">
+        <h5 class="text-base font-semibold text-error-700 mb-4 flex items-center gap-2">
+          <span class="w-1 h-4 bg-error-500 rounded-full"></span>
+          Tipos de Despesa Disponíveis
+        </h5>
+        <div class="space-y-3">
+          <% if @expense_types_metadata.present? && @expense_types_metadata.respond_to?(:each) %>
+            <% @expense_types_metadata.each do |type, metadata| %>
+              <div class="rounded-lg bg-gradient-to-r from-error-50/50 to-white border-l-4 border-l-error-400 border-r border-t border-b border-error-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+                <div class="font-semibold text-neutral-900 mb-2 text-sm"><%= type %></div>
+                <% if metadata.present? %>
+                  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Média</span>
+                      <span class="font-semibold text-error-700">R$<%= number_with_precision(metadata[:avg_unit_value] || 0, precision: 2) %></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Total</span>
+                      <span class="font-semibold text-error-700">R$<%= number_with_precision(metadata[:total_value] || 0, precision: 2) %></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Registros</span>
+                      <span class="font-semibold text-error-700"><%= metadata[:record_count] || 0 %></span>
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-neutral-500">Quantidade</span>
+                      <span class="font-semibold text-error-700"><%= metadata[:total_quantity] || 0 %></span>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="rounded-lg bg-neutral-50 border border-neutral-200 p-4 text-center">
+              <p class="text-sm text-neutral-500">Nenhum tipo de despesa disponível</p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selection Form -->
+  <div class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="w-full">
+        <label for="income_types" class="block text-sm font-medium text-neutral-700 mb-2">Tipos de Receita:</label>
+        <div class="space-y-2" data-equilibrium-point-target="incomeContainer">
+          <% @available_income_types.each do |income_type| %>
+            <% metadata = @income_types_metadata[income_type] || {} %>
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="income_types[]" 
+                value="<%= income_type %>" 
+                <%= 'checked' if @income_types.include?(income_type) %>
+                data-action="change->equilibrium-point#calculate"
+                data-equilibrium-point-target="incomeCheckbox"
+                class="peer h-5 w-5 appearance-none rounded border-2 checked:bg-secondary-600 checked:border-secondary-600 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 border-neutral-300 mt-0.5">
+              <div class="flex-1">
+                <span class="text-sm font-medium cursor-pointer text-neutral-700"><%= income_type %></span>
+                <% if metadata.present? && metadata[:avg_unit_value].present? %>
+                  <span class="text-xs text-neutral-500 ml-2">
+                    - R$<%= number_with_precision(metadata[:avg_unit_value], precision: 2) %> médio, <%= metadata[:record_count] || 0 %> registro(s)
+                  </span>
+                <% end %>
+              </div>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="w-full">
+        <label for="expenses_types" class="block text-sm font-medium text-neutral-700 mb-2">Tipos de Despesa:</label>
+        <div class="space-y-2" data-equilibrium-point-target="expenseContainer">
+          <% @available_expense_types.each do |expense_type| %>
+            <% metadata = @expense_types_metadata[expense_type] || {} %>
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input 
+                type="checkbox" 
+                name="expenses_types[]" 
+                value="<%= expense_type %>" 
+                <%= 'checked' if @expenses_types.include?(expense_type) %>
+                data-action="change->equilibrium-point#calculate"
+                data-equilibrium-point-target="expenseCheckbox"
+                class="peer h-5 w-5 appearance-none rounded border-2 checked:bg-secondary-600 checked:border-secondary-600 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 border-neutral-300 mt-0.5">
+              <div class="flex-1">
+                <span class="text-sm font-medium cursor-pointer text-neutral-700"><%= expense_type %></span>
+                <% if metadata.present? && metadata[:avg_unit_value].present? %>
+                  <span class="text-xs text-neutral-500 ml-2">
+                    - R$<%= number_with_precision(metadata[:avg_unit_value], precision: 2) %> médio, <%= metadata[:record_count] || 0 %> registro(s)
+                  </span>
+                <% end %>
+              </div>
+            </label>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selected Options Display -->
+    <div class="rounded-lg bg-primary-50 border border-primary-200 p-4" data-equilibrium-point-target="selectedOptions">
+      <h4 class="text-sm font-semibold text-neutral-900 mb-2">Opções Selecionadas:</h4>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div class="text-xs font-medium text-neutral-600 mb-1">Receitas:</div>
+          <div class="text-sm text-neutral-700" data-equilibrium-point-target="selectedIncomeTypes">
+            <span class="text-neutral-500">Nenhuma selecionada</span>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs font-medium text-neutral-600 mb-1">Despesas:</div>
+          <div class="text-sm text-neutral-700" data-equilibrium-point-target="selectedExpenseTypes">
+            <span class="text-neutral-500">Nenhuma selecionada</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-4 pt-4 border-t border-neutral-200">
+      <%= link_to "Resetar", dashboard_path, class: button_classes(variant: :secondary) %>
+    </div>
+  </div>
+</div>
+

@@ -9,6 +9,10 @@ fi
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
+  
+  # Build Tailwind CSS before starting the server
+  echo "Building Tailwind CSS..."
+  ./bin/rails tailwindcss:build || echo "Warning: Tailwind CSS build failed, but continuing..."
 fi
 
 exec "${@}"

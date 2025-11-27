@@ -17,6 +17,7 @@ Rails.application.routes.draw do
   resources :expenses
   resources :incomes
   get "dashboard", to: "dashboard#index"
+  post "dashboard/calculate_equilibrium", to: "dashboard#calculate_equilibrium"
 
   get "up" => "rails/health#show", as: :rails_health_check
 

@@ -1,17 +1,26 @@
-<%= form_with(model: expense) do |form| %>
-  <% if expense.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(expense.errors.count, "error") %> prohibited this expense from being saved:</h2>
+<%
+  # Design System Component Classes
+  button_primary = "inline-flex items-center justify-center rounded-lg font-medium bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors px-4 py-2 text-base gap-2"
+  alert_error = "flex gap-3 p-4 rounded-lg border bg-error-50 text-error-800 border-error-200"
+%>
 
-      <ul>
-        <% expense.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+<%= form_with(model: expense, class: "space-y-6") do |form| %>
+  <% if expense.errors.any? %>
+    <div class="<%= alert_error %>" role="alert" aria-live="polite">
+      <div class="flex-1 min-w-0">
+        <h4 class="font-semibold mb-1">
+          <%= pluralize(expense.errors.count, "erro") %> impediu que esta despesa fosse salva:
+        </h4>
+        <ul class="list-disc list-inside space-y-1 text-sm">
+          <% expense.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   <% end %>
 
-  <div>
-    <%= form.submit %>
+  <div class="flex gap-2 pt-4 border-t border-neutral-200">
+    <%= form.submit expense.persisted? ? "Atualizar Despesa" : "Cadastrar Despesa", class: button_primary %>
   </div>
 <% end %>

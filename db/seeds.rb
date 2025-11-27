@@ -1,47 +1,61 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+# Este arquivo deve garantir a existência de registros necessários para executar a aplicação em todos os ambientes (produção,
+# desenvolvimento, teste). O código aqui deve ser idempotente para que possa ser executado a qualquer momento em qualquer ambiente.
+# Os dados podem ser carregados com o comando bin/rails db:seed (ou criados junto com o banco de dados com db:setup).
 
-puts "🌱 Seeding database..."
+puts "🌱 Populando banco de dados..."
 
-# Clear existing data to ensure clean seeding
-puts "🧹 Clearing existing data..."
+# Calcular datas dinâmicas baseadas em hoje
+today = Date.today
+# Encontrar próximo sábado (6 = sábado no Date#wday do Ruby)
+days_until_saturday = (6 - today.wday) % 7
+days_until_saturday = 7 if days_until_saturday == 0 && today.wday != 6
+first_match_date = today + days_until_saturday
+match_dates = [
+  first_match_date,
+  first_match_date + 7.days,
+  first_match_date + 14.days,
+  first_match_date + 21.days
+]
+
+# Limpar dados existentes para garantir uma população limpa
+puts "🧹 Limpando dados existentes..."
 AthleteMatch.destroy_all
 Payment.destroy_all
 Athlete.destroy_all
 Match.destroy_all
 Income.destroy_all
 Expense.destroy_all
+TransactionCategory.destroy_all
 
-puts "👥 Creating athletes..."
+puts "👥 Criando atletas..."
 athletes = {
-  john_doe: {
-    name: "John Doe",
+  joao_silva: {
+    name: "João Silva",
     phone: 1234567890,
     date_of_birth: Date.parse("1990-05-15")
   },
-  jane_smith: {
-    name: "Jane Smith",
+  maria_santos: {
+    name: "Maria Santos",
     phone: 9876543210,
     date_of_birth: Date.parse("1992-08-22")
   },
-  mike_johnson: {
-    name: "Mike Johnson",
+  pedro_oliveira: {
+    name: "Pedro Oliveira",
     phone: 5551234567,
     date_of_birth: Date.parse("1988-12-10")
   },
-  sarah_wilson: {
-    name: "Sarah Wilson",
+  ana_costa: {
+    name: "Ana Costa",
     phone: 7778889999,
     date_of_birth: Date.parse("1995-03-28")
   },
-  alex_rodriguez: {
-    name: "Alex Rodriguez",
+  carlos_rodrigues: {
+    name: "Carlos Rodrigues",
     phone: 4445556666,
     date_of_birth: Date.parse("1993-07-14")
   },
-  emma_davis: {
-    name: "Emma Davis",
+  julia_ferreira: {
+    name: "Júlia Ferreira",
     phone: 1112223333,
     date_of_birth: Date.parse("1991-11-05")
   }
@@ -52,25 +66,25 @@ athletes.each do |key, attributes|
     athlete.phone = attributes[:phone]
     athlete.date_of_birth = attributes[:date_of_birth]
   end
-  puts "  ✅ Created athlete: #{attributes[:name]}"
+  puts "  ✅ Atleta criado: #{attributes[:name]}"
 end
 
-puts "🏟️ Creating matches..."
+puts "🏟️ Criando partidas..."
 matches = {
-  first_week: {
-    date: Date.parse("2025-08-30"),
+  primeira_semana: {
+    date: first_match_date,
     location: "COPM"
   },
-  second_week: {
-    date: Date.parse("2025-09-05"),
+  segunda_semana: {
+    date: first_match_date + 7.days,
     location: "COPM"
   },
-  third_week: {
-    date: Date.parse("2025-09-12"),
+  terceira_semana: {
+    date: first_match_date + 14.days,
     location: "COPM"
   },
-  fourth_week: {
-    date: Date.parse("2025-09-18"),
+  quarta_semana: {
+    date: first_match_date + 21.days,
     location: "COPM"
   }
 }
@@ -80,18 +94,18 @@ matches.each do |key, attributes|
     match.date = attributes[:date]
     match.location = attributes[:location]
   end
-  puts "  ✅ Created match: #{attributes[:location]} on #{attributes[:date]}"
+  puts "  ✅ Partida criada: #{attributes[:location]} em #{attributes[:date]}"
 end
 
-puts "🏷️ Creating transaction categories..."
+puts "🏷️ Criando categorias de transação..."
 transaction_categories = {
-  daily: {
-    name: "Daily",
-    description: "Daily game participation income"
+  diario: {
+    name: "Diário",
+    description: "Receita de participação diária em jogos"
   },
-  monthly: {
-    name: "Monthly",
-    description: "Monthly subscription income"
+  mensal: {
+    name: "Mensal",
+    description: "Receita de assinatura mensal"
   }
 }
 
@@ -99,20 +113,20 @@ transaction_categories.each do |key, attributes|
   TransactionCategory.find_or_create_by!(name: attributes[:name]) do |category|
     category.description = attributes[:description]
   end
-  puts "  ✅ Created transaction category: #{attributes[:name]}"
+  puts "  ✅ Categoria de transação criada: #{attributes[:name]}"
 end
 
-puts "💰 Creating incomes..."
+puts "💰 Criando receitas..."
 incomes = {
-  daily: {
-    transaction_category_name: "Daily",
+  diario: {
+    transaction_category_name: "Diário",
     unit_value: 15.0,
-    date: Date.parse("2025-08-15")
+    date: today
   },
-  monthly: {
-    transaction_category_name: "Monthly",
+  mensal: {
+    transaction_category_name: "Mensal",
     unit_value: 35.0,
-    date: Date.parse("2025-08-20")
+    date: today + 5.days
   }
 }
 
@@ -122,45 +136,45 @@ incomes.each do |key, attributes|
     income.unit_value = attributes[:unit_value]
     income.date = attributes[:date]
   end
-  puts "  ✅ Created income: #{attributes[:transaction_category_name]} - $#{attributes[:unit_value]}"
+  puts "  ✅ Receita criada: #{attributes[:transaction_category_name]} - R$ #{attributes[:unit_value]}"
 end
 
-puts "💸 Creating expenses..."
+puts "💸 Criando despesas..."
 expenses = {
-  food: {
-    type: "Basic",
-    description: "Field",
+  campo: {
+    type: "Básico",
+    description: "Campo",
     unit_value: 650.0,
     quantity: 1,
-    date: Date.parse("2025-08-15")
+    date: today
   },
-  transportation: {
-    type: "Intermediary",
-    description: "Goalkeeper",
+  goleiro: {
+    type: "Intermediário",
+    description: "Goleiro",
     unit_value: 50.0,
     quantity: 2,
-    date: Date.parse("2025-08-16")
+    date: today + 1.day
   },
-  entertainment: {
-    type: "Intermediary",
-    description: "Football Vest",
+  camisa: {
+    type: "Intermediário",
+    description: "Camisa de Futebol",
     unit_value: 350.0,
     quantity: 1,
-    date: Date.parse("2025-08-17")
+    date: today + 2.days
   },
-  utilities: {
-    type: "Intermediary",
-    description: "Football balls",
+  bolas: {
+    type: "Intermediário",
+    description: "Bolas de Futebol",
     unit_value: 150.0,
     quantity: 1,
-    date: Date.parse("2025-08-18")
+    date: today + 3.days
   },
-  equipment: {
-    type: "Advanced",
-    description: "Barbecue",
+  churrasqueira: {
+    type: "Avançado",
+    description: "Churrasqueira",
     unit_value: 650.0,
     quantity: 1,
-    date: Date.parse("2025-08-19")
+    date: today + 4.days
   }
 }
 
@@ -170,46 +184,46 @@ expenses.each do |key, attributes|
     expense.quantity = attributes[:quantity]
     expense.date = attributes[:date]
   end
-  puts "  ✅ Created expense: #{attributes[:type]} - #{attributes[:description]} - $#{attributes[:unit_value]} x #{attributes[:quantity]}"
+  puts "  ✅ Despesa criada: #{attributes[:type]} - #{attributes[:description]} - R$ #{attributes[:unit_value]} x #{attributes[:quantity]}"
 end
 
-puts "🤝 Creating athlete matches..."
+puts "🤝 Criando partidas de atletas..."
 athlete_matches_data = [
-  { athlete_name: "John Doe", match_location: "COPM", match_date: "2025-08-30" },
-  { athlete_name: "Jane Smith", match_location: "COPM", match_date: "2025-09-05" },
-  { athlete_name: "Mike Johnson", match_location: "COPM", match_date: "2025-09-12" },
-  { athlete_name: "Sarah Wilson", match_location: "COPM", match_date: "2025-09-18" },
-  { athlete_name: "John Doe", match_location: "COPM", match_date: "2025-09-05" },
-  { athlete_name: "Jane Smith", match_location: "COPM", match_date: "2025-09-12" },
-  { athlete_name: "Mike Johnson", match_location: "COPM", match_date: "2025-09-18" },
-  { athlete_name: "Sarah Wilson", match_location: "COPM", match_date: "2025-08-30" },
-  { athlete_name: "Alex Rodriguez", match_location: "COPM", match_date: "2025-08-30" },
-  { athlete_name: "Emma Davis", match_location: "COPM", match_date: "2025-09-05" },
-  { athlete_name: "Alex Rodriguez", match_location: "COPM", match_date: "2025-09-12" },
-  { athlete_name: "Emma Davis", match_location: "COPM", match_date: "2025-09-18" }
+  { athlete_name: "João Silva", match_date: match_dates[0] },
+  { athlete_name: "Maria Santos", match_date: match_dates[1] },
+  { athlete_name: "Pedro Oliveira", match_date: match_dates[2] },
+  { athlete_name: "Ana Costa", match_date: match_dates[3] },
+  { athlete_name: "João Silva", match_date: match_dates[1] },
+  { athlete_name: "Maria Santos", match_date: match_dates[2] },
+  { athlete_name: "Pedro Oliveira", match_date: match_dates[3] },
+  { athlete_name: "Ana Costa", match_date: match_dates[0] },
+  { athlete_name: "Carlos Rodrigues", match_date: match_dates[0] },
+  { athlete_name: "Júlia Ferreira", match_date: match_dates[1] },
+  { athlete_name: "Carlos Rodrigues", match_date: match_dates[2] },
+  { athlete_name: "Júlia Ferreira", match_date: match_dates[3] }
 ]
 
 athlete_matches_data.each do |data|
   athlete = Athlete.find_by!(name: data[:athlete_name])
-  match = Match.find_by!(location: data[:match_location], date: data[:match_date])
+  match = Match.find_by!(location: "COPM", date: data[:match_date])
 
   AthleteMatch.find_or_create_by!(athlete: athlete, match: match)
-  puts "  ✅ Created athlete match: #{data[:athlete_name]} in #{data[:match_location]} on #{data[:match_date]}"
+  puts "  ✅ Partida de atleta criada: #{data[:athlete_name]} em COPM em #{data[:match_date]}"
 end
 
-puts "💳 Creating payments..."
+puts "💳 Criando pagamentos..."
 payments_data = [
-  { athlete_name: "John Doe", match_location: "COPM", amount: 15.0, status: "paid", description: "First week game payment", transaction_category_name: "Daily" },
-  { athlete_name: "Jane Smith", match_location: "COPM", amount: 15.0, status: "paid", description: "Second week game payment", transaction_category_name: "Daily" },
-  { athlete_name: "Mike Johnson", match_location: "COPM", amount: 15.0, status: "pending", description: "Third week game payment", transaction_category_name: "Daily" },
-  { athlete_name: "Sarah Wilson", match_location: "COPM", amount: 15.0, status: "paid", description: "Fourth week game payment", transaction_category_name: "Daily" },
-  { athlete_name: "Alex Rodriguez", match_location: "COPM", amount: 15.0, status: "paid", description: "First week game payment", transaction_category_name: "Daily" },
-  { athlete_name: "Emma Davis", match_location: "COPM", amount: 15.0, status: "pending", description: "Second week game payment", transaction_category_name: "Daily" }
+  { athlete_name: "João Silva", match_date: match_dates[0], amount: 15.0, status: "paid", description: "Pagamento da primeira semana", transaction_category_name: "Diário" },
+  { athlete_name: "Maria Santos", match_date: match_dates[1], amount: 15.0, status: "paid", description: "Pagamento da segunda semana", transaction_category_name: "Diário" },
+  { athlete_name: "Pedro Oliveira", match_date: match_dates[2], amount: 15.0, status: "pending", description: "Pagamento da terceira semana", transaction_category_name: "Diário" },
+  { athlete_name: "Ana Costa", match_date: match_dates[3], amount: 15.0, status: "paid", description: "Pagamento da quarta semana", transaction_category_name: "Diário" },
+  { athlete_name: "Carlos Rodrigues", match_date: match_dates[0], amount: 15.0, status: "paid", description: "Pagamento da primeira semana", transaction_category_name: "Diário" },
+  { athlete_name: "Júlia Ferreira", match_date: match_dates[1], amount: 15.0, status: "pending", description: "Pagamento da segunda semana", transaction_category_name: "Diário" }
 ]
 
 payments_data.each do |data|
   athlete = Athlete.find_by!(name: data[:athlete_name])
-  match = Match.find_by!(location: data[:match_location])
+  match = Match.find_by!(location: "COPM", date: data[:match_date])
   transaction_category = TransactionCategory.find_by!(name: data[:transaction_category_name])
 
   Payment.find_or_create_by!(athlete: athlete, match: match) do |payment|
@@ -219,20 +233,21 @@ payments_data.each do |data|
     payment.date = match.date
     payment.transaction_category = transaction_category
   end
-  puts "  ✅ Created payment: #{data[:athlete_name]} - $#{data[:amount]} (#{data[:status]}) for #{data[:match_location]}"
+  status_pt = data[:status] == "paid" ? "pago" : "pendente"
+  puts "  ✅ Pagamento criado: #{data[:athlete_name]} - R$ #{data[:amount]} (#{status_pt}) para COPM em #{data[:match_date]}"
 end
 
 puts ""
-puts "🎉 Database seeding completed successfully!"
+puts "🎉 População do banco de dados concluída com sucesso!"
 puts ""
-puts "📊 Summary:"
-puts "  🏷️ Transaction Categories: #{TransactionCategory.count}"
-puts "  👥 Athletes: #{Athlete.count}"
-puts "  🏟️ Matches: #{Match.count}"
-puts "  💰 Incomes: #{Income.count}"
-puts "  💸 Expenses: #{Expense.count}"
-puts "  🤝 Athlete Matches: #{AthleteMatch.count}"
-puts "  💳 Payments: #{Payment.count}"
+puts "📊 Resumo:"
+puts "  🏷️ Categorias de Transação: #{TransactionCategory.count}"
+puts "  👥 Atletas: #{Athlete.count}"
+puts "  🏟️ Partidas: #{Match.count}"
+puts "  💰 Receitas: #{Income.count}"
+puts "  💸 Despesas: #{Expense.count}"
+puts "  🤝 Partidas de Atletas: #{AthleteMatch.count}"
+puts "  💳 Pagamentos: #{Payment.count}"
 puts ""
-puts "🚀 You can now test your application with realistic data!"
-puts "💡 Use 'bin/rails db:seed' to re-run this anytime."
+puts "🚀 Agora você pode testar sua aplicação com dados realistas!"
+puts "💡 Use 'bin/rails db:seed' para executar novamente a qualquer momento."

@@ -1,0 +1,175 @@
+<%# Equilibrium Point Result Partial %>
+<div id="equilibrium-point-result" class="rounded-lg bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+  <div class="flex gap-4 mb-4">
+    <div class="flex items-center" aria-hidden="true"><%= icon('⚖️', size: 'xl', aria_hidden: true) %></div>
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold text-neutral-900 mb-2 flex items-center gap-2">
+        <span class="w-1 h-5 bg-primary-500 rounded-full"></span>
+        Resultado do Equilíbrio Financeiro
+      </h3>
+      <p class="text-sm text-neutral-600">
+        Esta análise mostra o ponto de equilíbrio entre suas receitas e despesas selecionadas.
+      </p>
+    </div>
+  </div>
+  
+  <div class="space-y-6">
+    <% if @equilibrium_point.is_a?(Hash) %>
+      <!-- Main Result -->
+      <div class="rounded-lg bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-300 p-4 shadow-sm">
+        <p class="text-base font-semibold text-neutral-900 mb-1">
+          <strong class="text-primary-700">Ponto de Equilíbrio:</strong> 
+          <span class="text-primary-600"><%= @equilibrium_point[:equilibrium_point] %></span>
+        </p>
+        <p class="text-sm text-neutral-600">
+          Este valor representa o número de unidades de receita necessárias para cobrir as despesas selecionadas.
+        </p>
+      </div>
+
+      <!-- Financial Summary -->
+      <div>
+        <h4 class="text-base font-semibold text-neutral-900 mb-4">Resumo Financeiro</h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="rounded-lg bg-white border-l-4 border-l-success-500 border-r border-t border-b border-neutral-200 p-4 bg-gradient-to-r from-success-50/30 to-white shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center" aria-hidden="true"><%= icon('💰', size: 'lg', aria_hidden: true) %></div>
+              <div class="flex-1">
+                <h5 class="text-sm font-medium text-neutral-500 mb-1">Receita Total</h5>
+                <p class="text-lg font-bold text-success-700">R$<%= number_with_precision(@equilibrium_point[:income_total], precision: 2) %></p>
+                <p class="text-xs text-neutral-500 mt-1"><%= @equilibrium_point[:income_count] %> tipo(s) selecionado(s)</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="rounded-lg bg-white border-l-4 border-l-error-500 border-r border-t border-b border-neutral-200 p-4 bg-gradient-to-r from-error-50/30 to-white shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center" aria-hidden="true"><%= icon('💸', size: 'lg', aria_hidden: true) %></div>
+              <div class="flex-1">
+                <h5 class="text-sm font-medium text-neutral-500 mb-1">Despesas Total</h5>
+                <p class="text-lg font-bold text-error-700">R$<%= number_with_precision(@equilibrium_point[:expenses_total], precision: 2) %></p>
+                <p class="text-xs text-neutral-500 mt-1"><%= @equilibrium_point[:expenses_count] %> tipo(s) selecionado(s)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown -->
+      <div>
+        <h4 class="text-base font-semibold text-neutral-900 mb-4">Detalhamento por Tipo</h4>
+
+        <!-- Income Details -->
+        <% if @equilibrium_point[:income_unit_values].any? %>
+          <div class="mb-6">
+            <h5 class="text-sm font-semibold text-neutral-700 mb-3">Receitas Selecionadas</h5>
+            <div class="space-y-2">
+              <% @equilibrium_point[:income_unit_values].each do |type, data| %>
+                <div class="rounded-lg bg-gradient-to-r from-success-50/50 to-white border-l-4 border-l-success-400 border-r border-t border-b border-neutral-200 p-3 shadow-sm">
+                  <div class="flex justify-between items-start mb-2">
+                    <span class="text-sm font-medium text-neutral-900"><%= type %></span>
+                    <span class="text-xs text-neutral-500">(<%= data[:count] %> registro(s))</span>
+                  </div>
+                  <div class="flex flex-wrap gap-4 text-xs text-neutral-600">
+                    <span>Valor unitário médio: <span class="font-semibold text-success-700">R$<%= number_with_precision(data[:unit_value], precision: 2) %></span></span>
+                    <span>Total: <span class="font-semibold text-success-700">R$<%= number_with_precision(data[:total_value], precision: 2) %></span></span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Expense Details - Grouped by Type -->
+        <% if @equilibrium_point[:expenses_by_type].present? && @equilibrium_point[:expenses_by_type].any? %>
+          <div class="mb-6">
+            <h5 class="text-sm font-semibold text-neutral-700 mb-3">Despesas Selecionadas</h5>
+            <div class="space-y-4">
+              <% @equilibrium_point[:expenses_by_type].each do |type, expenses| %>
+                <% type_summary = @equilibrium_point[:expenses_unit_values][type] || {} %>
+                <div class="rounded-lg bg-gradient-to-r from-error-50/50 to-white border-l-4 border-l-error-400 border-r border-t border-b border-neutral-200 p-4 shadow-sm">
+                  <div class="flex justify-between items-start mb-3">
+                    <span class="text-base font-semibold text-neutral-900"><%= type %></span>
+                    <span class="text-xs text-neutral-500"><%= expenses.length %> registro(s)</span>
+                  </div>
+                  <% if type_summary[:total_value].present? %>
+                    <div class="flex flex-wrap gap-4 text-xs text-neutral-600 mb-3 pb-3 border-b border-neutral-200">
+                      <span>Valor unitário médio: <span class="font-semibold text-error-700">R$<%= number_with_precision(type_summary[:unit_value], precision: 2) %></span></span>
+                      <span>Total do tipo: <span class="font-semibold text-error-700">R$<%= number_with_precision(type_summary[:total_value], precision: 2) %></span></span>
+                    </div>
+                  <% end %>
+                  <div class="space-y-2">
+                    <div class="text-xs font-semibold text-neutral-700 mb-2">Detalhamento:</div>
+                    <% expenses.each do |expense| %>
+                      <div class="rounded bg-white border border-neutral-200 p-3 text-xs">
+                        <div class="flex justify-between items-start mb-2">
+                          <span class="font-medium text-neutral-900"><%= expense[:description] %></span>
+                          <% if expense[:date].present? %>
+                            <span class="text-neutral-500"><%= expense[:date].strftime('%d/%m/%Y') %></span>
+                          <% end %>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3 text-neutral-600">
+                          <div>
+                            <span class="text-neutral-500">Valor Unitário:</span>
+                            <span class="font-semibold text-error-700 ml-1">R$<%= number_with_precision(expense[:unit_value], precision: 2) %></span>
+                          </div>
+                          <div>
+                            <span class="text-neutral-500">Quantidade:</span>
+                            <span class="font-semibold text-error-700 ml-1"><%= expense[:quantity] %></span>
+                          </div>
+                          <div>
+                            <span class="text-neutral-500">Total:</span>
+                            <span class="font-semibold text-error-700 ml-1">R$<%= number_with_precision(expense[:total_value], precision: 2) %></span>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Cost Analysis -->
+      <div class="rounded-lg bg-info-50 border border-info-200 p-4">
+        <h4 class="text-base font-semibold text-neutral-900 mb-2">Análise de Custo</h4>
+        <p class="text-sm font-medium text-neutral-700 mb-1">Custo total para atingir o equilíbrio:</p>
+        <p class="text-xl font-bold text-info-600 mb-1">R$<%= number_with_precision(@equilibrium_point[:equilibrium_point] * @equilibrium_point[:income_total], precision: 2) %></p>
+        <p class="text-xs text-neutral-600">
+          (<%= @equilibrium_point[:equilibrium_point] %> unidades × R$<%= number_with_precision(@equilibrium_point[:income_total], precision: 2) %> de receita total)
+        </p>
+      </div>
+    <% else %>
+      <div class="rounded-lg bg-primary-50 border border-primary-200 p-4 mb-6">
+        <p class="text-base font-semibold text-neutral-900 mb-1">
+          <strong>Ponto de Equilíbrio:</strong> <%= @equilibrium_point %>
+        </p>
+        <p class="text-sm text-neutral-600">
+          Este valor representa o número de unidades de receita necessárias para cobrir as despesas selecionadas.
+        </p>
+      </div>
+
+      <div class="rounded-lg bg-white border border-neutral-200 p-4">
+        <h4 class="text-base font-semibold text-neutral-900 mb-3">Como interpretar este resultado:</h4>
+        <ul class="list-disc list-inside space-y-2 text-sm text-neutral-700 mb-4">
+          <li>
+            <strong>Valor = 1:</strong> Você precisa de exatamente 1 unidade de receita para cobrir as despesas
+          </li>
+          <li>
+            <strong>Valor > 1:</strong> Você precisa de mais de 1 unidade de receita para cobrir as despesas
+          </li>
+          <li>
+            <strong>Valor < 1:</strong> Uma unidade de receita é suficiente para cobrir as despesas
+          </li>
+        </ul>
+
+        <div class="rounded-lg bg-neutral-50 p-3">
+          <h5 class="text-sm font-semibold text-neutral-900 mb-1">Exemplo Prático:</h5>
+          <p class="text-xs text-neutral-600">Se o resultado for 2.5, isso significa que você precisa de 2,5 unidades de receita (por exemplo, 2,5 pagamentos diários) para cobrir todas as despesas selecionadas.</p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>
+

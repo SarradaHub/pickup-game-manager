@@ -1,0 +1,38 @@
+<%# Cash Flow Chart Partial - renders both monthly and yearly charts %>
+<section class="md:col-span-12">
+  <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+    <span class="w-1 h-6 bg-gradient-to-b from-info-500 to-info-600 rounded-full"></span>
+    Análise do Fluxo de Caixa
+  </h2>
+  <div class="rounded-lg bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+    <!-- Color Legend -->
+    <div class="flex gap-4 mb-4 pb-4 border-b border-neutral-200">
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 rounded bg-success-600" aria-hidden="true"></div>
+        <span class="text-sm text-neutral-700">Receita</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 rounded bg-error-600" aria-hidden="true"></div>
+        <span class="text-sm text-neutral-700">Despesas</span>
+      </div>
+    </div>
+    
+    <div class="flex gap-2 mb-6">
+      <button class="inline-flex items-center justify-center rounded-lg font-medium bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors px-4 py-2 text-base gap-2" data-period="monthly" type="button">Visão Mensal</button>
+      <button class="inline-flex items-center justify-center rounded-lg font-medium bg-neutral-200 text-neutral-900 hover:bg-neutral-300 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2 transition-colors px-4 py-2 text-base gap-2" data-period="yearly" type="button">Visão Anual</button>
+    </div>
+
+    <div>
+      <!-- Monthly Chart -->
+      <div class="chart-period active" id="monthly-chart">
+        <%= render 'dashboard/cash_flow_period', summary: @monthly_summary %>
+      </div>
+
+      <!-- Yearly Chart -->
+      <div class="chart-period hidden" id="yearly-chart">
+        <%= render 'dashboard/cash_flow_period', summary: @yearly_summary %>
+      </div>
+    </div>
+  </div>
+</section>
+

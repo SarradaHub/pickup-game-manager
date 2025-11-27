@@ -1,2 +1,29 @@
-<div id="<%= dom_id expense %>">
+<div id="<%= dom_id expense %>" class="rounded-lg bg-white border border-neutral-200 p-6 hover:shadow-md transition-shadow">
+  <div class="text-neutral-700 space-y-2">
+    <% if expense.type.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Tipo:</span>
+        <span class="text-neutral-900"><%= expense.type %></span>
+      </p>
+    <% end %>
+    <% if expense.description.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Descrição:</span>
+        <span class="text-neutral-900"><%= expense.description %></span>
+      </p>
+    <% end %>
+    <% if expense.date.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Data:</span>
+        <span class="text-neutral-900"><%= expense.date.strftime("%d/%m/%Y") if expense.date.respond_to?(:strftime) %><%= expense.date unless expense.date.respond_to?(:strftime) %></span>
+      </p>
+    <% end %>
+    <% if expense.unit_value.present? && expense.quantity.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Valor:</span>
+        <span class="text-neutral-900 font-semibold">R$<%= number_with_precision(expense.total_value, precision: 2) %></span>
+        <span class="text-neutral-500 text-xs">(<%= expense.quantity %> × R$<%= number_with_precision(expense.unit_value, precision: 2) %>)</span>
+      </p>
+    <% end %>
+  </div>
 </div>

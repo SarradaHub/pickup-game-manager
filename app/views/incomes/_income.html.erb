@@ -1,2 +1,22 @@
-<div id="<%= dom_id income %>">
+<div id="<%= dom_id income %>" class="rounded-lg bg-white border border-neutral-200 p-6 hover:shadow-md transition-shadow">
+  <div class="text-neutral-700 space-y-2">
+    <% if income.type.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Tipo:</span>
+        <span class="text-neutral-900"><%= income.type %></span>
+      </p>
+    <% end %>
+    <% if income.date.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Data:</span>
+        <span class="text-neutral-900"><%= income.date.strftime("%d/%m/%Y") if income.date.respond_to?(:strftime) %><%= income.date unless income.date.respond_to?(:strftime) %></span>
+      </p>
+    <% end %>
+    <% if income.unit_value.present? %>
+      <p class="text-sm font-medium">
+        <span class="text-neutral-500">Valor:</span>
+        <span class="text-neutral-900 font-semibold">R$<%= number_with_precision(income.unit_value, precision: 2) %></span>
+      </p>
+    <% end %>
+  </div>
 </div>
