@@ -14,19 +14,19 @@ module IdentityServiceClient
         method: :post,
         path: "/api/v1/auth/validate",
         params: { token: token },
-        headers: { "Content-Type" => "application/json" }
+        headers: { "Content-Type" => "application/json" },
       )
 
       if response[:success] && response[:data]["success"]
         {
           valid: true,
-          user: response[:data]["data"]["user"]
+          user: response[:data]["data"]["user"],
         }
       else
         { valid: false, error: response[:error] || "Token validation failed" }
       end
-    rescue => e
-      Rails.logger.error "Identity service validation error: #{e.message}"
+    rescue StandardError => e
+      Rails.logger.error("Identity service validation error: #{e.message}")
       { valid: false, error: e.message }
     end
 
@@ -38,12 +38,12 @@ module IdentityServiceClient
         "identity-service",
         method: :get,
         path: "/api/v1/users/#{user_id}",
-        headers: { "Authorization" => "Bearer #{service_api_key}" }
+        headers: { "Authorization" => "Bearer #{service_api_key}" },
       )
 
       response[:success] ? response[:data]["data"] : nil
-    rescue => e
-      Rails.logger.error "Identity service get_user error: #{e.message}"
+    rescue StandardError => e
+      Rails.logger.error("Identity service get_user error: #{e.message}")
       nil
     end
 

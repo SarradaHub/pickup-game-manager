@@ -1,1 +1,1 @@
-json.array! @matches, partial: "matches/match", as: :match
+json.array!(@matches, partial: "matches/match", as: :match)

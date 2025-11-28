@@ -1,7 +1,19 @@
-<div id="<%= dom_id athlete %>">
-  <p>
-    <strong>Name:</strong>
-    <%= athlete.name %>
-  </p>
-
+<div id="<%= dom_id athlete %>" class="rounded-lg bg-white border border-neutral-200 p-6 hover:shadow-md transition-shadow">
+  <div class="text-neutral-700 space-y-2">
+    <h3 class="text-base font-semibold text-neutral-900 mb-2">
+      <%= athlete.name %>
+    </h3>
+    <% if athlete.phone.present? %>
+      <p class="text-sm">
+        <span class="text-neutral-500">Telefone:</span>
+        <span class="text-neutral-900"><%= athlete.phone %></span>
+      </p>
+    <% end %>
+    <% if athlete.date_of_birth.present? %>
+      <p class="text-sm">
+        <span class="text-neutral-500">Data de Nascimento:</span>
+        <span class="text-neutral-900"><%= athlete.date_of_birth.strftime("%d/%m/%Y") %></span>
+      </p>
+    <% end %>
+  </div>
 </div>

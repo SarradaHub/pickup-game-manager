@@ -1,0 +1,15 @@
+<%# Debtor Item Partial %>
+<div class="rounded-lg bg-white border-l-4 border-l-warning-500 border-r border-t border-b border-neutral-200 p-4 flex items-center gap-4 hover:shadow-md transition-all bg-gradient-to-r from-warning-50/30 to-white">
+  <div class="flex items-center" aria-hidden="true"><%= icon('👤', size: 'lg', aria_hidden: true) %></div>
+  <div class="flex-1 min-w-0">
+    <h4 class="text-base font-semibold text-neutral-900 mb-1"><%= debtor.name %></h4>
+    <p class="text-sm text-neutral-600">
+      Telefone: <%= debtor.phone %> |
+      Nascimento: <%= debtor.date_of_birth.strftime("%d/%m/%Y") if debtor.date_of_birth %>
+    </p>
+  </div>
+  <div>
+    <%= link_to "Ver Atleta", athlete_path(debtor), class: button_classes(variant: :primary, size: :sm) %>
+  </div>
+</div>
+

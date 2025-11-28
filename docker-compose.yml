@@ -56,9 +56,17 @@ services:
       - bundle_cache:/usr/local/bundle
       # Active Storage files
       - rails_storage:/rails/storage
+      # Note: app/assets/builds is included in the source mount for Tailwind CSS
     # Keep container running for interactive use
     stdin_open: true
     tty: true
+    # Override command to start Tailwind CSS watcher and Rails server
+    # The entrypoint already builds Tailwind CSS before starting
+    command: >
+      sh -c "
+        bundle exec rails tailwindcss:watch > log/tailwindcss.log 2>&1 &
+        exec bundle exec rails server -b 0.0.0.0 -p 3000
+      "
 
 volumes:
   pgdata:

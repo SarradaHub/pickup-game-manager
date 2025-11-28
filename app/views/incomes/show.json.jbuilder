@@ -1,1 +1,1 @@
-json.partial! "incomes/income", income: @income
+json.partial!("incomes/income", income: @income)

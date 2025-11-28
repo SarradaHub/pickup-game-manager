@@ -4,7 +4,7 @@ class Payment < ApplicationRecord
   belongs_to :transaction_category
 
   validates :amount, presence: true
-  validates :status, presence: true, inclusion: { in: %w[pending paid] }
+  validates :status, presence: true, inclusion: { in: %w(pending paid) }
 
   scope :pending, -> { where(status: "pending") }
   scope :paid, -> { where(status: "paid") }

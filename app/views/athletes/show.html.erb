@@ -1,10 +1,56 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Detalhes do Atleta" %>
 
-<%= render @athlete %>
+<% if notice.present? %>
+  <div class="flex gap-3 p-4 rounded-lg border bg-success-50 text-success-800 border-success-200 mb-6" role="alert" aria-live="polite">
+    <div class="flex-1 min-w-0">
+      <div class="text-sm"><%= notice %></div>
+    </div>
+  </div>
+<% end %>
 
-<div>
-  <%= link_to "Edit this athlete", edit_athlete_path(@athlete) %> |
-  <%= link_to "Back to athletes", athletes_path %>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <nav class="mb-4" aria-label="Breadcrumb">
+      <%= link_to athletes_path, 
+          class: "text-sm text-neutral-600 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 rounded-md px-2 py-1 transition-colors",
+          aria: { label: "Voltar para lista de atletas" } do %>
+        <span class="mr-1" aria-hidden="true">←</span>
+        <span>Voltar para atletas</span>
+      <% end %>
+    </nav>
+    <h1 class="text-3xl font-bold mb-2">Detalhes do Atleta</h1>
+    <p class="text-sm text-neutral-600">Visualize e gerencie as informações do atleta</p>
+  </header>
 
-  <%= button_to "Destroy this athlete", @athlete, method: :delete %>
+  <!-- Athlete Details Section -->
+  <section class="md:col-span-12">
+    <div class="rounded-lg bg-white border border-neutral-200 p-6">
+      <h2 class="sr-only">Informações do Atleta</h2>
+      <%= render @athlete %>
+    </div>
+  </section>
+
+  <!-- Actions Section -->
+  <section class="md:col-span-12">
+    <div class="flex flex-wrap gap-2">
+      <%= link_to edit_athlete_path(@athlete), 
+          class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-4 py-2 text-base gap-2",
+          aria: { label: "Editar atleta" } do %>
+        Editar Atleta
+      <% end %>
+      <%= link_to athletes_path, 
+          class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-neutral-200 text-neutral-900 hover:bg-neutral-300 focus:ring-neutral-500 active:bg-neutral-400 px-4 py-2 text-base gap-2",
+          aria: { label: "Voltar para lista de atletas" } do %>
+        Voltar para Atletas
+      <% end %>
+      <%= button_to athlete_path(@athlete), 
+          method: :delete, 
+          class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-error-600 text-white hover:bg-error-700 focus:ring-error-500 active:bg-error-800 px-4 py-2 text-base gap-2",
+          data: { confirm: "Tem certeza que deseja excluir este atleta?" },
+          aria: { label: "Excluir atleta" } do %>
+        Excluir Atleta
+      <% end %>
+    </div>
+  </section>
 </div>

@@ -1,27 +1,70 @@
-<%= form_with(model: match) do |form| %>
-  <% if match.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(match.errors.count, "error") %> prohibited this match from being saved:</h2>
+<%
+  # Design System Component Classes
+  input_base = "w-full px-4 py-2 text-base text-neutral-900 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-neutral-100 disabled:text-neutral-500 disabled:cursor-not-allowed placeholder:text-neutral-400"
+  input_normal = "#{input_base} border-neutral-300"
+  input_error = "#{input_base} border-error-500 focus:ring-error-500 focus:border-error-500"
+  
+  label_class = "block text-sm font-medium text-neutral-700 mb-1"
+  required_asterisk = "text-error-500 ml-1"
+  error_class = "mt-1 text-sm text-error-600"
+  
+  button_primary = "inline-flex items-center justify-center rounded-lg font-medium bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors px-4 py-2 text-base gap-2"
+  
+  alert_error = "flex gap-3 p-4 rounded-lg border bg-error-50 text-error-800 border-error-200"
+%>
 
-      <ul>
-        <% match.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+<%= form_with(model: match, class: "space-y-6") do |form| %>
+  <% if match.errors.any? %>
+    <div class="<%= alert_error %>" role="alert" aria-live="polite">
+      <div class="flex-1 min-w-0">
+        <h4 class="font-semibold mb-1">
+          <%= pluralize(match.errors.count, "erro") %> impediu que este jogo fosse salvo:
+        </h4>
+        <ul class="list-disc list-inside space-y-1 text-sm">
+          <% match.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :date, style: "display: block" %>
-    <%= form.date_field :date %>
+  <div class="w-full">
+    <%= form.label :date, class: label_class do %>
+      Data <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.date_field :date, 
+        id: "match_date",
+        class: match.errors[:date].any? ? input_error : input_normal,
+        aria_describedby: match.errors[:date].any? ? "match_date-error" : nil,
+        aria_invalid: match.errors[:date].any?,
+        required: true %>
+    <% if match.errors[:date].any? %>
+      <p id="match_date-error" class="<%= error_class %>" role="alert">
+        <%= match.errors[:date].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :location, style: "display: block" %>
-    <%= form.text_field :location %>
+  <div class="w-full">
+    <%= form.label :location, class: label_class do %>
+      Localização <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.text_field :location, 
+        id: "match_location",
+        class: match.errors[:location].any? ? input_error : input_normal,
+        aria_describedby: match.errors[:location].any? ? "match_location-error" : nil,
+        aria_invalid: match.errors[:location].any?,
+        placeholder: "Digite o local do jogo",
+        required: true %>
+    <% if match.errors[:location].any? %>
+      <p id="match_location-error" class="<%= error_class %>" role="alert">
+        <%= match.errors[:location].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <div class="flex gap-2 pt-4 border-t border-neutral-200">
+    <%= form.submit match.persisted? ? "Atualizar Jogo" : "Cadastrar Jogo", class: button_primary %>
   </div>
 <% end %>

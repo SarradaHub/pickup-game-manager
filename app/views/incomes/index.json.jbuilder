@@ -1,1 +1,1 @@
-json.array! @incomes, partial: "incomes/income", as: :income
+json.array!(@incomes, partial: "incomes/income", as: :income)

@@ -1,527 +1,187 @@
-<div class="dashboard">
-  <header class="dashboard-header">
-    <h1>Painel de Controle - Gerenciador de Jogos</h1>
-    <p class="dashboard-subtitle">Gerencie seus jogos, atletas e finanças</p>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <h1 class="text-3xl font-bold mb-2 flex items-center gap-3">
+      <span class="w-2 h-10 bg-gradient-to-b from-secondary-500 via-secondary-600 to-primary-600 rounded-full"></span>
+      <span>Painel de Controle - Gerenciador de Jogos</span>
+    </h1>
+    <p class="text-sm text-neutral-600 ml-5">Gerencie seus jogos, atletas e finanças</p>
   </header>
 
-      <!-- Financial Overview Cards -->
-  <section class="financial-overview">
-    <h2>Visão Geral Financeira</h2>
-    <div class="stats-grid">
-      <div class="stat-card income">
-        <div class="stat-icon">💰</div>
-        <div class="stat-content">
-          <h3>Receita do Mês</h3>
-          <p class="stat-value">R$<%= number_with_precision(@monthly_summary[:income_value], precision: 2) %></p>
-        </div>
-      </div>
-
-      <div class="stat-card expenses">
-        <div class="stat-icon">💸</div>
-        <div class="stat-content">
-          <h3>Despesas do Mês</h3>
-          <p class="stat-value">R$<%= number_with_precision(@monthly_summary[:expenses_value], precision: 2) %></p>
-        </div>
-      </div>
-
-      <div class="stat-card profit">
-        <div class="stat-icon">📈</div>
-        <div class="stat-content">
-          <h3>Lucro do Mês</h3>
-          <p class="stat-value <%= @monthly_summary[:profit] >= 0 ? 'positive' : 'negative' %>">
-            R$<%= number_with_precision(@monthly_summary[:profit], precision: 2) %>
-          </p>
-        </div>
-      </div>
-
-      <div class="stat-card yearly-profit">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <h3>Ano até Hoje</h3>
-          <p class="stat-value <%= @yearly_summary[:profit] >= 0 ? 'positive' : 'negative' %>">
-            R$<%= number_with_precision(@yearly_summary[:profit], precision: 2) %>
-          </p>
-        </div>
-      </div>
+  <!-- Financial Overview Cards -->
+  <section class="md:col-span-12">
+    <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+      <span class="w-1 h-6 bg-gradient-to-b from-success-500 to-success-600 rounded-full"></span>
+      Visão Geral Financeira
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'dashboard/stat_card', icon: '💰', title: 'Receita do Mês', value: @monthly_summary[:income_value], currency: true, card_color: 'success' %>
+      <%= render 'dashboard/stat_card', icon: '💸', title: 'Despesas do Mês', value: @monthly_summary[:expenses_value], currency: true, card_color: 'error' %>
+      <%= render 'dashboard/stat_card', icon: '📈', title: 'Lucro do Mês', value: @monthly_summary[:profit], value_color: @monthly_summary[:profit] >= 0 ? 'text-success-600' : 'text-error-600', currency: true, card_color: @monthly_summary[:profit] >= 0 ? 'success' : 'error' %>
+      <%= render 'dashboard/stat_card', icon: '📊', title: 'Ano até Hoje', value: @yearly_summary[:profit], value_color: @yearly_summary[:profit] >= 0 ? 'text-success-600' : 'text-error-600', currency: true, card_color: @yearly_summary[:profit] >= 0 ? 'info' : 'warning' %>
     </div>
   </section>
 
   <!-- Cash Flow Chart -->
-  <section class="cash-flow-chart">
-    <h2>Análise do Fluxo de Caixa</h2>
-    <div class="chart-container">
-      <div class="chart-tabs">
-        <button class="chart-tab active" data-period="monthly">Visão Mensal</button>
-        <button class="chart-tab" data-period="yearly">Visão Anual</button>
-      </div>
+  <%= render 'dashboard/cash_flow_chart' %>
 
-      <div class="chart-content">
-        <!-- Monthly Chart -->
-        <div class="chart-period active" id="monthly-chart">
-          <div class="chart-bars">
-            <div class="chart-bar income-bar">
-              <div class="bar-label">Receita</div>
-              <div class="bar-container">
-                <div class="bar-fill" style="height: <%= calculate_bar_height(@monthly_summary[:income_value], @monthly_summary[:income_value] + @monthly_summary[:expenses_value]) %>%"></div>
-              </div>
-              <div class="bar-value">R$<%= number_with_precision(@monthly_summary[:income_value], precision: 2) %></div>
-            </div>
-
-            <div class="chart-bar expense-bar">
-              <div class="bar-label">Despesas</div>
-              <div class="bar-container">
-                <div class="bar-fill" style="height: <%= calculate_bar_height(@monthly_summary[:expenses_value], @monthly_summary[:income_value] + @monthly_summary[:expenses_value]) %>%"></div>
-              </div>
-              <div class="bar-value">R$<%= number_with_precision(@monthly_summary[:expenses_value], precision: 2) %></div>
-            </div>
-          </div>
-
-          <div class="chart-summary">
-            <div class="summary-item">
-              <span class="summary-label">Fluxo de Caixa Líquido:</span>
-              <span class="summary-value <%= @monthly_summary[:profit] >= 0 ? 'positive' : 'negative' %>">
-                R$<%= number_with_precision(@monthly_summary[:profit], precision: 2) %>
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Yearly Chart -->
-        <div class="chart-period" id="yearly-chart">
-          <div class="chart-bars">
-            <div class="chart-bar income-bar">
-              <div class="bar-label">Receita</div>
-              <div class="bar-container">
-                <div class="bar-fill" style="height: <%= calculate_bar_height(@yearly_summary[:income_value], @yearly_summary[:income_value] + @yearly_summary[:expenses_value]) %>%"></div>
-              </div>
-              <div class="bar-value">R$<%= number_with_precision(@yearly_summary[:income_value], precision: 2) %></div>
-            </div>
-
-            <div class="chart-bar expense-bar">
-              <div class="bar-label">Despesas</div>
-              <div class="bar-container">
-                <div class="bar-fill" style="height: <%= calculate_bar_height(@yearly_summary[:expenses_value], @yearly_summary[:income_value] + @yearly_summary[:expenses_value]) %></div>
-              </div>
-              <div class="bar-value">R$<%= number_with_precision(@yearly_summary[:expenses_value], precision: 2) %></div>
-            </div>
-          </div>
-
-          <div class="chart-summary">
-            <div class="summary-item">
-              <span class="summary-label">Fluxo de Caixa Líquido:</span>
-              <span class="summary-value <%= @yearly_summary[:profit] >= 0 ? 'positive' : 'negative' %>">
-                R$<%= number_with_precision(@yearly_summary[:profit], precision: 2) %>
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-    <!-- Quick Stats -->
-  <section class="quick-stats">
-    <h2>Estatísticas Rápidas</h2>
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon">👥</div>
-        <div class="stat-content">
-          <h3>Total de Atletas</h3>
-          <p class="stat-value"><%= @total_athletes %></p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">⚽</div>
-        <div class="stat-content">
-          <h3>Total de Jogos</h3>
-          <p class="stat-value"><%= @total_matches %></p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">⏳</div>
-        <div class="stat-content">
-          <h3>Pagamentos Pendentes</h3>
-          <p class="stat-value"><%= @pending_payments %></p>
-        </div>
-      </div>
-
-      <div class="stat-card">
-        <div class="stat-icon">📊</div>
-        <div class="stat-content">
-          <h3>Próximos Jogos</h3>
-          <p class="stat-value"><%= @upcoming_matches.count %></p>
-        </div>
-      </div>
+  <!-- Quick Stats -->
+  <section class="md:col-span-12">
+    <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+      <span class="w-1 h-6 bg-gradient-to-b from-primary-500 to-primary-600 rounded-full"></span>
+      Estatísticas Rápidas
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'dashboard/stat_card', icon: '👥', title: 'Total de Atletas', value: @total_athletes, card_color: 'primary' %>
+      <%= render 'dashboard/stat_card', icon: '⚽', title: 'Total de Jogos', value: @total_matches, card_color: 'secondary' %>
+      <%= render 'dashboard/stat_card', icon: '⏳', title: 'Pagamentos Pendentes', value: @pending_payments, card_color: 'warning' %>
+      <%= render 'dashboard/stat_card', icon: '📊', title: 'Próximos Jogos', value: @upcoming_matches.count, card_color: 'info' %>
     </div>
   </section>
 
   <!-- Action Buttons -->
-  <section class="quick-actions">
-    <h2>Ações Rápidas</h2>
-    <div class="action-buttons">
-      <%= link_to new_athlete_path, class: "action-btn primary" do %>
-        <span class="btn-icon">👤</span>
-        <span>Adicionar Atleta</span>
-      <% end %>
-
-      <%= link_to new_match_path, class: "action-btn primary" do %>
-        <span class="btn-icon">⚽</span>
-        <span>Agendar Jogo</span>
-      <% end %>
-
-      <%= link_to new_payment_path, class: "action-btn secondary" do %>
-        <span class="btn-icon">💳</span>
-        <span>Registrar Pagamento</span>
-      <% end %>
-
-      <%= link_to new_expense_path, class: "action-btn secondary" do %>
-        <span class="btn-icon">📝</span>
-        <span>Adicionar Despesa</span>
-      <% end %>
+  <section class="md:col-span-12">
+    <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+      <span class="w-1 h-6 bg-gradient-to-b from-secondary-500 to-secondary-600 rounded-full"></span>
+      Ações Rápidas
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <%= render 'dashboard/action_button', path: new_athlete_path, icon: '👤', text: 'Adicionar Atleta', variant: :primary %>
+      <%= render 'dashboard/action_button', path: new_match_path, icon: '⚽', text: 'Agendar Jogo', variant: :primary %>
+      <%= render 'dashboard/action_button', path: new_payment_path, icon: '💳', text: 'Registrar Pagamento', variant: :secondary %>
+      <%= render 'dashboard/action_button', path: new_expense_path, icon: '📝', text: 'Adicionar Despesa', variant: :secondary %>
     </div>
   </section>
 
-    <!-- Recent Activity -->
-  <section class="recent-activity">
-    <h2>Atividade Recente</h2>
+  <!-- Recent Activity -->
+  <section class="md:col-span-12">
+    <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+      <span class="w-1 h-6 bg-gradient-to-b from-info-500 to-info-600 rounded-full"></span>
+      Atividade Recente
+    </h2>
 
-    <div class="activity-grid">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Recent Payments -->
-      <div class="activity-card">
-        <h3>Pagamentos Recentes</h3>
+      <div class="rounded-lg bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+          <span class="w-1 h-5 bg-success-500 rounded-full"></span>
+          Pagamentos Recentes
+        </h3>
         <% if @recent_payments.any? %>
-          <div class="activity-list">
+          <div class="space-y-3">
             <% @recent_payments.each do |payment| %>
-              <div class="activity-item">
-                <div class="activity-icon">💳</div>
-                <div class="activity-content">
-                  <p class="activity-title"><%= payment.athlete.name %> pagou R$<%= number_with_precision(payment.amount, precision: 2) %></p>
-                  <p class="activity-details">Jogo: <%= payment.match.location %> em <%= payment.match.date.strftime("%d/%m/%Y") %></p>
-                  <span class="status-badge <%= payment.status %>"><%= payment.status == 'paid' ? 'Pago' : 'Pendente' %></span>
-                </div>
-              </div>
+              <%= render 'dashboard/recent_payment_item', payment: payment %>
             <% end %>
           </div>
         <% else %>
-          <p class="no-activity">Nenhum pagamento recente</p>
+          <p class="text-sm text-neutral-500 text-center py-4">Nenhum pagamento recente</p>
         <% end %>
       </div>
 
       <!-- Recent Expenses -->
-      <div class="activity-card">
-        <h3>Despesas Recentes</h3>
+      <div class="rounded-lg bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+          <span class="w-1 h-5 bg-error-500 rounded-full"></span>
+          Despesas Recentes
+        </h3>
         <% if @recent_expenses.any? %>
-          <div class="activity-list">
+          <div class="space-y-3">
             <% @recent_expenses.each do |expense| %>
-              <div class="activity-item">
-                <div class="activity-icon">💸</div>
-                <div class="activity-content">
-                  <p class="activity-title"><%= expense.description %></p>
-                  <p class="activity-details">R$<%= number_with_precision(expense.total_value, precision: 2) %> em <%= expense.date.strftime("%d/%m/%Y") %></p>
-                </div>
-              </div>
+              <%= render 'dashboard/recent_expense_item', expense: expense %>
             <% end %>
           </div>
         <% else %>
-          <p class="no-activity">Nenhuma despesa recente</p>
+          <p class="text-sm text-neutral-500 text-center py-4">Nenhuma despesa recente</p>
         <% end %>
       </div>
 
       <!-- Recent Athletes -->
-      <div class="activity-card">
-        <h3>Atletas Recentes</h3>
+      <div class="rounded-lg bg-white border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow">
+        <h3 class="text-lg font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+          <span class="w-1 h-5 bg-primary-500 rounded-full"></span>
+          Atletas Recentes
+        </h3>
         <% if @recent_athletes.any? %>
-          <div class="activity-list">
+          <div class="space-y-3">
             <% @recent_athletes.each do |athlete| %>
-              <div class="activity-item">
-                <div class="activity-icon">👤</div>
-                <div class="activity-content">
-                  <p class="activity-title"><%= athlete.name %></p>
-                  <p class="activity-details">Entrou em <%= athlete.created_at.strftime("%d/%m/%Y") %></p>
-                </div>
-              </div>
+              <%= render 'dashboard/recent_athlete_item', athlete: athlete %>
             <% end %>
           </div>
         <% else %>
-          <p class="no-activity">Nenhum atleta recente</p>
+          <p class="text-sm text-neutral-500 text-center py-4">Nenhum atleta recente</p>
         <% end %>
       </div>
     </div>
   </section>
 
   <!-- Upcoming Matches -->
-  <section class="upcoming-matches">
-    <h2>Próximos Jogos</h2>
+  <section class="md:col-span-12">
+    <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+      <span class="w-1 h-6 bg-gradient-to-b from-warning-500 to-warning-600 rounded-full"></span>
+      Próximos Jogos
+    </h2>
     <% if @upcoming_matches.any? %>
-      <div class="matches-grid">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <% @upcoming_matches.each do |match| %>
-          <div class="match-card">
-            <div class="match-date">
-              <span class="date-day"><%= match.date.strftime("%d") %></span>
-              <span class="date-month"><%= match.date.strftime("%b") %></span>
-            </div>
-            <div class="match-details">
-              <h3><%= match.location %></h3>
-              <p class="match-time"><%= match.date.strftime("%A, %d de %B de %Y") %></p>
-              <p class="athletes-count"><%= match.athletes.count %> atletas inscritos</p>
-            </div>
-            <div class="match-actions">
-              <%= link_to "Ver Detalhes", match_path(match), class: "btn-small" %>
-            </div>
-          </div>
+          <%= render 'dashboard/upcoming_match_card', match: match %>
         <% end %>
       </div>
     <% else %>
-      <p class="no-matches">Nenhum jogo agendado</p>
+      <div class="rounded-lg bg-white border border-neutral-200 p-6 text-center">
+        <p class="text-sm text-neutral-500">Nenhum jogo agendado</p>
+      </div>
     <% end %>
   </section>
 
-    <!-- Equilibrium Point Analysis -->
-  <section class="equilibrium-analysis">
-    <h2>Análise do Ponto de Equilíbrio</h2>
+  <!-- Equilibrium Point Analysis -->
+  <section class="md:col-span-12">
+    <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+      <span class="w-1 h-6 bg-gradient-to-b from-primary-500 to-primary-600 rounded-full"></span>
+      Análise do Ponto de Equilíbrio
+    </h2>
 
-    <!-- Equilibrium Point Calculator Form -->
-    <div class="equilibrium-calculator">
-      <h3>Calcular Novo Ponto de Equilíbrio</h3>
-      <p class="calculator-description">
-        Selecione os tipos de receita e despesa para calcular o ponto de equilíbrio.
-      </p>
+    <%= render 'dashboard/equilibrium_point_form' %>
 
-      <div class="equilibrium-info">
-        <h4>O que é o Ponto de Equilíbrio?</h4>
-        <p>O ponto de equilíbrio é o número mínimo de unidades de receita necessárias para cobrir todas as despesas selecionadas. É uma ferramenta importante para planejamento financeiro e tomada de decisões.</p>
-
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-icon">💰</div>
-            <div class="info-content">
-              <h5>Tipos de Receita</h5>
-              <p>Selecione as fontes de receita que deseja incluir no cálculo. Exemplos: pagamentos diários, mensalidades, etc.</p>
-            </div>
+    <div id="equilibrium-point-result-container">
+      <% if @equilibrium_point.present? %>
+        <%= render 'dashboard/equilibrium_point_result' %>
+      <% else %>
+        <div id="equilibrium-point-result" class="rounded-lg bg-white border border-neutral-200 p-6 shadow-sm">
+          <div class="text-center py-8">
+            <p class="text-base font-semibold text-neutral-900 mb-2">Nenhuma seleção realizada</p>
+            <p class="text-sm text-neutral-600">
+              Selecione pelo menos um tipo de receita e um tipo de despesa para calcular o ponto de equilíbrio.
+            </p>
           </div>
-
-          <div class="info-item">
-            <div class="info-icon">💸</div>
-            <div class="info-content">
-              <h5>Tipos de Despesa</h5>
-              <p>Escolha as categorias de despesas que precisam ser cobertas. Exemplos: equipamentos, aluguel de campo, etc.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <%= form_with url: dashboard_path, method: :get, local: true, class: "equilibrium-form" do |form| %>
-        <div class="form-row">
-          <div class="form-group">
-            <label for="income_types">Tipos de Receita:</label>
-            <div class="checkbox-group">
-              <% @available_income_types.each do |income_type| %>
-                <label class="checkbox-item">
-                  <%= check_box_tag "income_types[]", income_type, @income_types.include?(income_type), class: "checkbox-input" %>
-                  <span class="checkbox-label"><%= income_type %></span>
-                </label>
-              <% end %>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="expenses_types">Tipos de Despesa:</label>
-            <div class="checkbox-group">
-              <% @available_expense_types.each do |expense_type| %>
-                <label class="checkbox-item">
-                  <%= check_box_tag "expenses_types[]", expense_type, @expenses_types.include?(expense_type), class: "checkbox-input" %>
-                  <span class="checkbox-label"><%= expense_type %></span>
-                </label>
-              <% end %>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-actions">
-          <%= form.submit "Calcular Ponto de Equilíbrio", class: "btn-primary" %>
-          <%= link_to "Resetar", dashboard_path, class: "btn-secondary" %>
         </div>
       <% end %>
     </div>
-
-    <!-- Equilibrium Point Result -->
-    <% if @equilibrium_point.present? %>
-      <div class="equilibrium-card">
-        <div class="equilibrium-icon">⚖️</div>
-        <div class="equilibrium-content">
-          <h3>Resultado do Equilíbrio Financeiro</h3>
-          <p class="equilibrium-description">
-            Esta análise mostra o ponto de equilíbrio entre suas receitas e despesas selecionadas.
-          </p>
-          <div class="equilibrium-details">
-            <% if @equilibrium_point.is_a?(Hash) %>
-              <div class="result-section">
-                <!-- Main Result -->
-                <div class="main-result">
-                  <p class="equilibrium-result">
-                    <strong>Ponto de Equilíbrio:</strong> <%= @equilibrium_point[:equilibrium_point] %>
-                  </p>
-                  <p class="equilibrium-explanation">
-                    Este valor representa o número de unidades de receita necessárias para cobrir as despesas selecionadas.
-                  </p>
-                </div>
-
-                <!-- Financial Summary -->
-                <div class="financial-summary">
-                  <h4>Resumo Financeiro</h4>
-                  <div class="summary-grid">
-                    <div class="summary-card income">
-                      <div class="summary-icon">💰</div>
-                      <div class="summary-content">
-                        <h5>Receita Total</h5>
-                        <p class="summary-amount">R$<%= number_with_precision(@equilibrium_point[:income_total], precision: 2) %></p>
-                        <p class="summary-detail"><%= @equilibrium_point[:income_count] %> tipo(s) selecionado(s)</p>
-                      </div>
-                    </div>
-
-                    <div class="summary-card expenses">
-                      <div class="summary-icon">💸</div>
-                      <div class="summary-content">
-                        <h5>Despesas Total</h5>
-                        <p class="summary-amount">R$<%= number_with_precision(@equilibrium_point[:expenses_total], precision: 2) %></p>
-                        <p class="summary-detail"><%= @equilibrium_point[:expenses_count] %> tipo(s) selecionado(s)</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Detailed Breakdown -->
-                <div class="detailed-breakdown">
-                  <h4>Detalhamento por Tipo</h4>
-
-                  <!-- Income Details -->
-                  <% if @equilibrium_point[:income_unit_values].any? %>
-                    <div class="breakdown-section">
-                      <h5>Receitas Selecionadas</h5>
-                      <div class="breakdown-list">
-                        <% @equilibrium_point[:income_unit_values].each do |type, data| %>
-                          <div class="breakdown-item">
-                            <div class="breakdown-header">
-                              <span class="breakdown-type"><%= type %></span>
-                              <span class="breakdown-count">(<%= data[:count] %> registro(s))</span>
-                            </div>
-                            <div class="breakdown-details">
-                              <span class="breakdown-unit">Valor unitário médio: R$<%= number_with_precision(data[:unit_value], precision: 2) %></span>
-                              <span class="breakdown-total">Total: R$<%= number_with_precision(data[:total_value], precision: 2) %></span>
-                            </div>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  <% end %>
-
-                  <!-- Expense Details -->
-                  <% if @equilibrium_point[:expenses_unit_values].any? %>
-                    <div class="breakdown-section">
-                      <h5>Despesas Selecionadas</h5>
-                      <div class="breakdown-list">
-                        <% @equilibrium_point[:expenses_unit_values].each do |type, data| %>
-                          <div class="breakdown-item">
-                            <div class="breakdown-header">
-                              <span class="breakdown-type"><%= type %></span>
-                              <span class="breakdown-count">(<%= data[:count] %> registro(s))</span>
-                            </div>
-                            <div class="breakdown-details">
-                              <span class="breakdown-unit">Valor unitário médio: R$<%= number_with_precision(data[:unit_value], precision: 2) %></span>
-                              <span class="breakdown-total">Total: R$<%= number_with_precision(data[:total_value], precision: 2) %></span>
-                            </div>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  <% end %>
-                </div>
-
-                <!-- Cost Analysis -->
-                <div class="cost-analysis">
-                  <h4>Análise de Custo</h4>
-                  <div class="cost-calculation">
-                    <p><strong>Custo total para atingir o equilíbrio:</strong></p>
-                    <p class="cost-amount">R$<%= number_with_precision(@equilibrium_point[:equilibrium_point] * @equilibrium_point[:income_total], precision: 2) %></p>
-                    <p class="cost-explanation">
-                      (<%= @equilibrium_point[:equilibrium_point] %> unidades × R$<%= number_with_precision(@equilibrium_point[:income_total], precision: 2) %> de receita total)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            <% else %>
-              <div class="result-section">
-                <p class="equilibrium-result">
-                  <strong>Ponto de Equilíbrio:</strong> <%= @equilibrium_point %>
-                </p>
-                <p class="equilibrium-explanation">
-                  Este valor representa o número de unidades de receita necessárias para cobrir as despesas selecionadas.
-                </p>
-
-                <div class="result-interpretation">
-                  <h4>Como interpretar este resultado:</h4>
-                  <ul class="interpretation-list">
-                    <li>
-                      <strong>Valor = 1:</strong> Você precisa de exatamente 1 unidade de receita para cobrir as despesas
-                    </li>
-                    <li>
-                      <strong>Valor > 1:</strong> Você precisa de mais de 1 unidade de receita para cobrir as despesas
-                    </li>
-                    <li>
-                      <strong>Valor < 1:</strong> Uma unidade de receita é suficiente para cobrir as despesas
-                    </li>
-                  </ul>
-
-                  <div class="practical-example">
-                    <h5>Exemplo Prático:</h5>
-                    <p>Se o resultado for 2.5, isso significa que você precisa de 2,5 unidades de receita (por exemplo, 2,5 pagamentos diários) para cobrir todas as despesas selecionadas.</p>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-    <% end %>
   </section>
 
   <!-- Debtors Overview -->
   <% if @debtors.present? %>
-    <section class="debtors-overview">
-      <h2>Visão Geral de Pagamentos Pendentes</h2>
-      <div class="debtors-summary">
-        <div class="debtors-stats">
-          <div class="debtor-stat">
-            <span class="stat-number"><%= @debtors.count %></span>
-            <span class="stat-label">Atletas com Pagamentos Pendentes</span>
-          </div>
+    <section class="md:col-span-12">
+      <h2 class="text-xl font-semibold text-neutral-900 mb-4 flex items-center gap-2">
+        <span class="w-1 h-6 bg-gradient-to-b from-error-500 to-error-600 rounded-full"></span>
+        Visão Geral de Pagamentos Pendentes
+      </h2>
+      <div class="rounded-lg bg-white border border-neutral-200 p-4 mb-6">
+        <div class="text-center">
+          <span class="text-3xl font-bold text-neutral-900"><%= @debtors.count %></span>
+          <span class="block text-sm text-neutral-600 mt-1">Atletas com Pagamentos Pendentes</span>
         </div>
       </div>
 
-      <div class="debtors-list">
-        <% @debtors.limit(10).each do |debtor| %>
-          <div class="debtor-item">
-            <div class="debtor-icon">👤</div>
-            <div class="debtor-content">
-              <h4><%= debtor.name %></h4>
-              <p class="debtor-details">
-                Telefone: <%= debtor.phone %> |
-                Nascimento: <%= debtor.date_of_birth.strftime("%d/%m/%Y") if debtor.date_of_birth %>
-              </p>
-            </div>
-            <div class="debtor-actions">
-              <%= link_to "Ver Atleta", athlete_path(debtor), class: "btn-small" %>
-            </div>
-          </div>
+      <div class="space-y-3">
+        <% @debtors.limit(@debtors_display_limit).each do |debtor| %>
+          <%= render 'dashboard/debtor_item', debtor: debtor %>
         <% end %>
       </div>
 
-      <% if @debtors.count > 10 %>
-        <div class="debtors-more">
-          <p>Mostrando 10 de <%= @debtors.count %> atletas com pagamentos pendentes</p>
-          <%= link_to "Ver Todos os Devedores", "#", class: "btn-small secondary" %>
+      <% if @debtors.count > @debtors_display_limit %>
+        <div class="rounded-lg bg-neutral-50 border border-neutral-200 p-4 mt-4 text-center">
+          <p class="text-sm text-neutral-600 mb-2">Mostrando <%= @debtors_display_limit %> de <%= @debtors.count %> atletas com pagamentos pendentes</p>
+          <%= link_to "Ver Todos os Devedores", athletes_path, class: button_classes(variant: :secondary, size: :sm) %>
         </div>
       <% end %>
     </section>
@@ -530,17 +190,65 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const chartTabs = document.querySelectorAll('.chart-tab');
+    const chartTabs = document.querySelectorAll('[data-period]');
     const chartPeriods = document.querySelectorAll('.chart-period');
 
+    // Initialize state - set first button as active
+    function initializeChartTabs() {
+      chartTabs.forEach((tab, index) => {
+        if (index === 0) {
+          // First tab (monthly) should be active
+          tab.classList.add('active', 'bg-secondary-600', 'text-white');
+          tab.classList.remove('bg-neutral-200', 'text-neutral-900');
+        } else {
+          // Other tabs should be inactive
+          tab.classList.remove('active', 'bg-secondary-600', 'text-white');
+          tab.classList.add('bg-neutral-200', 'text-neutral-900');
+        }
+      });
+      
+      // Set initial chart visibility
+      chartPeriods.forEach((period, index) => {
+        if (index === 0) {
+          period.classList.remove('hidden');
+          period.classList.add('active');
+        } else {
+          period.classList.add('hidden');
+          period.classList.remove('active');
+        }
+      });
+    }
+
+    // Initialize on page load
+    initializeChartTabs();
+
+    // Handle tab clicks
     chartTabs.forEach(tab => {
       tab.addEventListener('click', function() {
         const period = this.getAttribute('data-period');
 
-        chartTabs.forEach(t => t.classList.remove('active'));
-        chartPeriods.forEach(p => p.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById(period + '-chart').classList.add('active');
+        // Reset all tabs to inactive state
+        chartTabs.forEach(t => {
+          t.classList.remove('active', 'bg-secondary-600', 'text-white');
+          t.classList.add('bg-neutral-200', 'text-neutral-900');
+        });
+        
+        // Hide all chart periods
+        chartPeriods.forEach(p => {
+          p.classList.add('hidden');
+          p.classList.remove('active');
+        });
+        
+        // Activate clicked tab
+        this.classList.add('active', 'bg-secondary-600', 'text-white');
+        this.classList.remove('bg-neutral-200', 'text-neutral-900');
+        
+        // Show corresponding chart
+        const targetChart = document.getElementById(period + '-chart');
+        if (targetChart) {
+          targetChart.classList.remove('hidden');
+          targetChart.classList.add('active');
+        }
       });
     });
   });

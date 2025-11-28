@@ -16,30 +16,30 @@ module ConsulService
       service_definition = {
         ID: service_name,
         Name: service_name,
-        Tags: [ "rails", "api", "v1" ],
+        Tags: %w(rails api v1),
         Address: service_address,
         Port: service_port,
         Check: {
           HTTP: "http://#{service_address}:#{service_port}/health",
           Interval: "10s",
           Timeout: "5s",
-          DeregisterCriticalServiceAfter: "30s"
-        }
+          DeregisterCriticalServiceAfter: "30s",
+        },
       }
 
       Diplomat::Service.register(service_definition)
-      Rails.logger.info "Registered #{service_name} with Consul at #{consul_url}"
-    rescue => e
-      Rails.logger.error "Failed to register with Consul: #{e.message}"
+      Rails.logger.info("Registered #{service_name} with Consul at #{consul_url}")
+    rescue StandardError => e
+      Rails.logger.error("Failed to register with Consul: #{e.message}")
     end
 
     def deregister_service
       return unless consul_enabled?
 
       Diplomat::Service.deregister("pickup-game-manager")
-      Rails.logger.info "Deregistered pickup-game-manager from Consul"
-    rescue => e
-      Rails.logger.error "Failed to deregister from Consul: #{e.message}"
+      Rails.logger.info("Deregistered pickup-game-manager from Consul")
+    rescue StandardError => e
+      Rails.logger.error("Failed to deregister from Consul: #{e.message}")
     end
 
     def discover_service(service_name)
@@ -51,8 +51,8 @@ module ConsulService
       # Return first healthy service
       service = services.find { |s| s[:Status] == "passing" } || services.first
       "http://#{service[:Address]}:#{service[:Port]}"
-    rescue => e
-      Rails.logger.error "Failed to discover service #{service_name}: #{e.message}"
+    rescue StandardError => e
+      Rails.logger.error("Failed to discover service #{service_name}: #{e.message}")
       nil
     end
 

@@ -1,0 +1,9 @@
+<%# Recent Expense Item Partial %>
+<div class="flex gap-3 p-3 rounded-lg bg-gradient-to-r from-error-50/50 to-white border-l-4 border-l-error-500 hover:shadow-sm transition-all">
+  <div class="flex items-center" aria-hidden="true"><%= icon('💸', size: 'lg', aria_hidden: true) %></div>
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-medium text-neutral-900"><%= expense.description %></p>
+    <p class="text-xs text-neutral-600 mt-1">R$<%= number_with_precision(expense.total_value, precision: 2) %> em <%= expense.date.strftime("%d/%m/%Y") %></p>
+  </div>
+</div>
+

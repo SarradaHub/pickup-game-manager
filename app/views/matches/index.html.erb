@@ -1,16 +1,56 @@
-<p style="color: green"><%= notice %></p>
+<% content_for :title, "Jogos" %>
 
-<% content_for :title, "Matches" %>
+<% if notice.present? %>
+  <div class="flex gap-3 p-4 rounded-lg border bg-success-50 text-success-800 border-success-200 mb-6" role="alert" aria-live="polite">
+    <div class="flex-1 min-w-0">
+      <div class="text-sm"><%= notice %></div>
+    </div>
+  </div>
+<% end %>
 
-<h1>Matches</h1>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <h1 class="text-3xl font-bold mb-2">Jogos</h1>
+    <p class="text-sm text-neutral-600">Gerencie todos os jogos cadastrados no sistema</p>
+  </header>
 
-<div id="matches">
-  <% @matches.each do |match| %>
-    <%= render match %>
-    <p>
-      <%= link_to "Show this match", match %>
-    </p>
-  <% end %>
+  <!-- Matches Grid -->
+  <section class="md:col-span-12" aria-labelledby="matches-heading">
+    <% if @matches.any? %>
+      <div id="matches" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <% @matches.each do |match| %>
+          <div>
+            <%= render match %>
+            <p class="mt-2">
+              <%= link_to match_path(match), 
+                  class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-3 py-1.5 text-sm gap-1.5",
+                  aria: { label: "Ver detalhes do jogo" } do %>
+                Ver detalhes
+              <% end %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="rounded-lg bg-white border border-neutral-200 p-6 text-center">
+        <p class="text-neutral-500 mb-4">Nenhum jogo cadastrado ainda.</p>
+        <%= link_to new_match_path, 
+            class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-4 py-2 text-base gap-2",
+            aria: { label: "Agendar primeiro jogo" } do %>
+          Agendar Primeiro Jogo
+        <% end %>
+      </div>
+    <% end %>
+  </section>
+
+  <!-- Actions Section -->
+  <section class="md:col-span-12">
+    <%= link_to new_match_path, 
+        class: "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-4 py-2 text-base gap-2",
+        aria: { label: "Agendar novo jogo" } do %>
+      <%= icon('⚽', size: 'md', aria_hidden: true) %>
+      <span>Novo Jogo</span>
+    <% end %>
+  </section>
 </div>
-
-<%= link_to "New match", new_match_path %>

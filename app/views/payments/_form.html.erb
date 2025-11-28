@@ -1,47 +1,142 @@
-<%= form_with(model: payment) do |form| %>
-  <% if payment.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(payment.errors.count, "error") %> prohibited this payment from being saved:</h2>
+<%
+  # Design System Component Classes
+  input_base = "w-full px-4 py-2 text-base text-neutral-900 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-neutral-100 disabled:text-neutral-500 disabled:cursor-not-allowed placeholder:text-neutral-400"
+  input_normal = "#{input_base} border-neutral-300"
+  input_error = "#{input_base} border-error-500 focus:ring-error-500 focus:border-error-500"
+  textarea_base = "#{input_base} resize-y"
+  textarea_normal = "#{textarea_base} border-neutral-300"
+  textarea_error = "#{textarea_base} border-error-500 focus:ring-error-500 focus:border-error-500"
+  
+  label_class = "block text-sm font-medium text-neutral-700 mb-1"
+  required_asterisk = "text-error-500 ml-1"
+  error_class = "mt-1 text-sm text-error-600"
+  
+  button_primary = "inline-flex items-center justify-center rounded-lg font-medium bg-secondary-600 text-white hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2 transition-colors px-4 py-2 text-base gap-2"
+  
+  alert_error = "flex gap-3 p-4 rounded-lg border bg-error-50 text-error-800 border-error-200"
+%>
 
-      <ul>
-        <% payment.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+<%= form_with(model: payment, class: "space-y-6") do |form| %>
+  <% if payment.errors.any? %>
+    <div class="<%= alert_error %>" role="alert" aria-live="polite">
+      <div class="flex-1 min-w-0">
+        <h4 class="font-semibold mb-1">
+          <%= pluralize(payment.errors.count, "erro") %> impediu que este pagamento fosse salvo:
+        </h4>
+        <ul class="list-disc list-inside space-y-1 text-sm">
+          <% payment.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :date, style: "display: block" %>
-    <%= form.date_field :date %>
+  <div class="w-full">
+    <%= form.label :date, class: label_class do %>
+      Data <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.date_field :date, 
+        id: "payment_date",
+        class: payment.errors[:date].any? ? input_error : input_normal,
+        aria_describedby: payment.errors[:date].any? ? "payment_date-error" : nil,
+        aria_invalid: payment.errors[:date].any?,
+        required: true %>
+    <% if payment.errors[:date].any? %>
+      <p id="payment_date-error" class="<%= error_class %>" role="alert">
+        <%= payment.errors[:date].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :status, style: "display: block" %>
-    <%= form.text_field :status %>
+  <div class="w-full">
+    <%= form.label :status, class: label_class do %>
+      Status <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.text_field :status, 
+        id: "payment_status",
+        class: payment.errors[:status].any? ? input_error : input_normal,
+        aria_describedby: payment.errors[:status].any? ? "payment_status-error" : nil,
+        aria_invalid: payment.errors[:status].any?,
+        placeholder: "Ex: paid, pending",
+        required: true %>
+    <% if payment.errors[:status].any? %>
+      <p id="payment_status-error" class="<%= error_class %>" role="alert">
+        <%= payment.errors[:status].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :athlete_id, style: "display: block" %>
-    <%= form.text_field :athlete_id %>
+  <div class="w-full">
+    <%= form.label :athlete_id, class: label_class do %>
+      Atleta <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.number_field :athlete_id, 
+        id: "payment_athlete_id",
+        class: payment.errors[:athlete_id].any? ? input_error : input_normal,
+        aria_describedby: payment.errors[:athlete_id].any? ? "payment_athlete_id-error" : nil,
+        aria_invalid: payment.errors[:athlete_id].any?,
+        required: true %>
+    <% if payment.errors[:athlete_id].any? %>
+      <p id="payment_athlete_id-error" class="<%= error_class %>" role="alert">
+        <%= payment.errors[:athlete_id].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :match_id, style: "display: block" %>
-    <%= form.text_field :match_id %>
+  <div class="w-full">
+    <%= form.label :match_id, class: label_class do %>
+      Jogo <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.number_field :match_id, 
+        id: "payment_match_id",
+        class: payment.errors[:match_id].any? ? input_error : input_normal,
+        aria_describedby: payment.errors[:match_id].any? ? "payment_match_id-error" : nil,
+        aria_invalid: payment.errors[:match_id].any?,
+        required: true %>
+    <% if payment.errors[:match_id].any? %>
+      <p id="payment_match_id-error" class="<%= error_class %>" role="alert">
+        <%= payment.errors[:match_id].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :description, style: "display: block" %>
-    <%= form.textarea :description %>
+  <div class="w-full">
+    <%= form.label :description, class: label_class %>
+    <%= form.text_area :description, 
+        id: "payment_description",
+        class: payment.errors[:description].any? ? textarea_error : textarea_normal,
+        rows: 4,
+        aria_describedby: payment.errors[:description].any? ? "payment_description-error" : nil,
+        aria_invalid: payment.errors[:description].any?,
+        placeholder: "Descrição opcional do pagamento" %>
+    <% if payment.errors[:description].any? %>
+      <p id="payment_description-error" class="<%= error_class %>" role="alert">
+        <%= payment.errors[:description].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.label :amount, style: "display: block" %>
-    <%= form.text_field :amount %>
+  <div class="w-full">
+    <%= form.label :amount, class: label_class do %>
+      Valor <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.number_field :amount, 
+        id: "payment_amount",
+        step: 0.01,
+        class: payment.errors[:amount].any? ? input_error : input_normal,
+        aria_describedby: payment.errors[:amount].any? ? "payment_amount-error" : nil,
+        aria_invalid: payment.errors[:amount].any?,
+        placeholder: "0.00",
+        required: true %>
+    <% if payment.errors[:amount].any? %>
+      <p id="payment_amount-error" class="<%= error_class %>" role="alert">
+        <%= payment.errors[:amount].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <div class="flex gap-2 pt-4 border-t border-neutral-200">
+    <%= form.submit payment.persisted? ? "Atualizar Pagamento" : "Cadastrar Pagamento", class: button_primary %>
   </div>
 <% end %>

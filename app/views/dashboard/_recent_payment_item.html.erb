@@ -1,0 +1,12 @@
+<%# Recent Payment Item Partial %>
+<div class="flex gap-3 p-3 rounded-lg bg-gradient-to-r from-success-50/50 to-white border-l-4 border-l-success-500 hover:shadow-sm transition-all">
+  <div class="flex items-center" aria-hidden="true"><%= icon('💳', size: 'lg', aria_hidden: true) %></div>
+  <div class="flex-1 min-w-0">
+    <p class="text-sm font-medium text-neutral-900"><%= payment.athlete.name %> pagou R$<%= number_with_precision(payment.amount, precision: 2) %></p>
+    <p class="text-xs text-neutral-600 mt-1">Jogo: <%= payment.match.location %> em <%= payment.match.date.strftime("%d/%m/%Y") %></p>
+    <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium mt-1 <%= payment.status == 'paid' ? 'bg-success-100 text-success-800 border border-success-200' : 'bg-warning-100 text-warning-800 border border-warning-200' %>">
+      <%= payment.status == 'paid' ? 'Pago' : 'Pendente' %>
+    </span>
+  </div>
+</div>
+

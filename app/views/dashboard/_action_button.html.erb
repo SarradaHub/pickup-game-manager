@@ -1,0 +1,10 @@
+<%# 
+  Action Button Partial
+  Usage: render 'dashboard/action_button', path: new_athlete_path, icon: '👤', text: 'Add Athlete', variant: :primary
+  variant: :primary or :secondary
+-%>
+<%= link_to path, class: button_classes(variant: variant || :primary) do %>
+  <%= icon(icon, size: 'md', aria_hidden: true) %>
+  <span><%= text %></span>
+<% end %>
+

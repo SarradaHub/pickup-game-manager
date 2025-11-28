@@ -1,0 +1,43 @@
+<%# 
+  Stat Card Partial
+  Usage: render 'dashboard/stat_card', icon: '💰', title: 'Title', value: 123.45, value_color: nil, currency: false, card_color: nil
+  value_color: optional, can be 'text-success-600', 'text-error-600', etc.
+  currency: optional boolean, if true formats value as currency (R$X.XX), defaults to false
+  card_color: optional, can be 'success', 'error', 'warning', 'info', 'primary', 'secondary' for colored border/background
+-%>
+<%
+  card_color_class = case local_assigns[:card_color]
+    when 'success'
+      'border-l-4 border-l-success-500 bg-success-50/30'
+    when 'error'
+      'border-l-4 border-l-error-500 bg-error-50/30'
+    when 'warning'
+      'border-l-4 border-l-warning-500 bg-warning-50/30'
+    when 'info'
+      'border-l-4 border-l-info-500 bg-info-50/30'
+    when 'primary'
+      'border-l-4 border-l-primary-500 bg-primary-50/30'
+    when 'secondary'
+      'border-l-4 border-l-secondary-500 bg-secondary-50/30'
+    else
+      'border border-neutral-200'
+  end
+%>
+<div class="rounded-lg bg-white <%= card_color_class %> p-6 transition-shadow hover:shadow-md">
+  <div class="flex items-center gap-4">
+    <div class="flex items-center"><%= icon(icon, size: 'xl', aria_hidden: true) %></div>
+    <div class="flex-1">
+      <h3 class="text-sm font-medium text-neutral-500 uppercase tracking-wide mb-1"><%= title %></h3>
+      <p class="text-xl font-bold <%= local_assigns[:value_color] || 'text-neutral-900' %>">
+        <% if local_assigns[:currency] && value.is_a?(Numeric) %>
+          R$<%= number_with_precision(value, precision: 2) %>
+        <% elsif value.is_a?(Numeric) %>
+          <%= value.to_i %>
+        <% else %>
+          <%= value %>
+        <% end %>
+      </p>
+    </div>
+  </div>
+</div>
+

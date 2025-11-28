@@ -5,11 +5,9 @@ class FinancialSummary
       income_value: payment_return_value(payment_return(date_range)),
       expenses: expense_return(date_range),
       expenses_value: expense_return_value(expense_return(date_range)),
-      profit: calculate_profit(date_range)
+      profit: calculate_profit(date_range),
     }
   end
-
-  private
 
   def self.payment_return(date_range)
     Payment.where(date: date_range, status: "paid")

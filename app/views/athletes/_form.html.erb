@@ -1,22 +1,96 @@
-<%= form_with(model: athlete) do |form| %>
-  <% if athlete.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(athlete.errors.count, "error") %> prohibited this athlete from being saved:</h2>
+<%
+  # Design System Component Classes (matching Input.tsx structure)
+  # Base input classes from design system Input component
+  input_base = "w-full px-4 py-2 text-base text-neutral-900 bg-white border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:bg-neutral-100 disabled:text-neutral-500 disabled:cursor-not-allowed placeholder:text-neutral-400"
+  input_normal = "#{input_base} border-neutral-300"
+  input_error = "#{input_base} border-error-500 focus:ring-error-500 focus:border-error-500"
+  
+  # Label classes from design system Label component
+  label_class = "block text-sm font-medium text-neutral-700 mb-1"
+  required_asterisk = "text-error-500 ml-1"
+  
+  # Error message classes from design system Input component
+  error_class = "mt-1 text-sm text-error-600"
+  
+  # Button classes from design system Button component (primary variant, md size)
+  button_base = "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none"
+  button_primary = "#{button_base} bg-secondary-600 text-white hover:bg-secondary-700 focus:ring-secondary-500 active:bg-secondary-800 px-4 py-2 text-base gap-2"
+  
+  # Alert classes from design system Alert component (error variant)
+  alert_error = "flex gap-3 p-4 rounded-lg border bg-error-50 text-error-800 border-error-200"
+%>
 
-      <ul>
-        <% athlete.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+<%= form_with(model: athlete, class: "space-y-6") do |form| %>
+  <% if athlete.errors.any? %>
+    <div class="<%= alert_error %>" role="alert" aria-live="polite">
+      <div class="flex-1 min-w-0">
+        <h4 class="font-semibold mb-1">
+          <%= pluralize(athlete.errors.count, "erro") %> impediu que este atleta fosse salvo:
+        </h4>
+        <ul class="list-disc list-inside space-y-1 text-sm">
+          <% athlete.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
     </div>
   <% end %>
 
-  <div>
-    <%= form.label :name, style: "display: block" %>
-    <%= form.text_field :name %>
+  <div class="w-full">
+    <%= form.label :name, class: label_class do %>
+      Nome <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.text_field :name, 
+        id: "athlete_name",
+        class: athlete.errors[:name].any? ? input_error : input_normal,
+        aria_describedby: athlete.errors[:name].any? ? "athlete_name-error" : nil,
+        aria_invalid: athlete.errors[:name].any?,
+        placeholder: "Digite o nome completo do atleta",
+        required: true %>
+    <% if athlete.errors[:name].any? %>
+      <p id="athlete_name-error" class="<%= error_class %>" role="alert">
+        <%= athlete.errors[:name].first %>
+      </p>
+    <% end %>
   </div>
 
-  <div>
-    <%= form.submit %>
+  <div class="w-full">
+    <%= form.label :phone, class: label_class do %>
+      Telefone <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.text_field :phone, 
+        id: "athlete_phone",
+        class: athlete.errors[:phone].any? ? input_error : input_normal,
+        aria_describedby: athlete.errors[:phone].any? ? "athlete_phone-error" : nil,
+        aria_invalid: athlete.errors[:phone].any?,
+        placeholder: "(00) 00000-0000",
+        type: "tel",
+        required: true %>
+    <% if athlete.errors[:phone].any? %>
+      <p id="athlete_phone-error" class="<%= error_class %>" role="alert">
+        <%= athlete.errors[:phone].first %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="w-full">
+    <%= form.label :date_of_birth, class: label_class do %>
+      Data de Nascimento <span class="<%= required_asterisk %>" aria-label="obrigatório">*</span>
+    <% end %>
+    <%= form.date_field :date_of_birth, 
+        id: "athlete_date_of_birth",
+        class: athlete.errors[:date_of_birth].any? ? input_error : input_normal,
+        aria_describedby: athlete.errors[:date_of_birth].any? ? "athlete_date_of_birth-error" : nil,
+        aria_invalid: athlete.errors[:date_of_birth].any?,
+        required: true %>
+    <% if athlete.errors[:date_of_birth].any? %>
+      <p id="athlete_date_of_birth-error" class="<%= error_class %>" role="alert">
+        <%= athlete.errors[:date_of_birth].first %>
+      </p>
+    <% end %>
+  </div>
+
+  <div class="flex gap-2 pt-4 border-t border-neutral-200">
+    <%= form.submit athlete.persisted? ? "Atualizar Atleta" : "Cadastrar Atleta", class: button_primary %>
   </div>
 <% end %>

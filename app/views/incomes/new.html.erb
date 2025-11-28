@@ -1,11 +1,25 @@
-<% content_for :title, "New income" %>
+<% content_for :title, "Nova Receita" %>
 
-<h1>New income</h1>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+  <!-- Header Section -->
+  <header class="md:col-span-12">
+    <nav class="mb-4" aria-label="Breadcrumb">
+      <%= link_to incomes_path, 
+          class: "text-sm text-neutral-600 hover:text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md px-2 py-1 transition-colors",
+          aria: { label: "Voltar para lista de receitas" } do %>
+        <span class="mr-1" aria-hidden="true">←</span>
+        <span>Voltar para receitas</span>
+      <% end %>
+    </nav>
+    <h1 class="text-3xl font-bold mb-2">Nova Receita</h1>
+    <p class="text-sm text-neutral-600">Preencha os dados abaixo para cadastrar uma nova receita no sistema</p>
+  </header>
 
-<%= render "form", income: @income %>
-
-<br>
-
-<div>
-  <%= link_to "Back to incomes", incomes_path %>
+  <!-- Form Section -->
+  <section class="md:col-span-12">
+    <div class="rounded-lg bg-white border border-neutral-200 p-6">
+      <h2 class="sr-only">Formulário de Cadastro</h2>
+      <%= render "form", income: @income %>
+    </div>
+  </section>
 </div>
