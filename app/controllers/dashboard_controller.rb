@@ -20,7 +20,7 @@ class DashboardController < ApplicationController
 
     @available_income_types = TransactionCategory.pluck(:name)
     @available_expense_types = Expense.distinct.pluck(:type)
-    
+
     # Provide metadata for all available options
     @income_types_metadata = EquilibriumPoint.all_income_types_metadata
     @expense_types_metadata = EquilibriumPoint.all_expense_types_metadata
@@ -29,21 +29,21 @@ class DashboardController < ApplicationController
   def calculate_equilibrium
     income_types = params[:income_types] || []
     expenses_types = params[:expenses_types] || []
-    
+
     result = EquilibriumPoint.calculate_equilibrium_point_with_details(income_types, expenses_types)
-    
-    render json: {
-      equilibrium_point: result[:equilibrium_point],
-      income_total: result[:income_total],
-      expenses_total: result[:expenses_total],
-      income_unit_values: result[:income_unit_values],
-      expenses_unit_values: result[:expenses_unit_values],
-      expenses_by_type: result[:expenses_by_type],
-      income_count: result[:income_count],
-      expenses_count: result[:expenses_count],
-      selected_income_types: income_types,
-      selected_expense_types: expenses_types
-    }
+
+    render(json: {
+             equilibrium_point: result[:equilibrium_point],
+             income_total: result[:income_total],
+             expenses_total: result[:expenses_total],
+             income_unit_values: result[:income_unit_values],
+             expenses_unit_values: result[:expenses_unit_values],
+             expenses_by_type: result[:expenses_by_type],
+             income_count: result[:income_count],
+             expenses_count: result[:expenses_count],
+             selected_income_types: income_types,
+             selected_expense_types: expenses_types,
+           })
   end
 
   private

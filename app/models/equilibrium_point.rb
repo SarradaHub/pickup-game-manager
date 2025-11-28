@@ -88,14 +88,17 @@ class EquilibriumPoint
     return { total: 0, unit_values: {}, expenses_by_type: {} } if types.empty?
 
     expenses = Expense.where(type: types).order(:date).to_a
-
-    # Group expenses in memory by type
     expenses_by_type = expenses.group_by(&:type)
-
     total = expenses.sum { |expense| expense.unit_value * expense.quantity }
-    unit_values = {}
-    expenses_by_type_detail = {}
 
+    unit_values = build_unit_values(types, expenses_by_type)
+    expenses_by_type_detail = build_expenses_by_type_detail(types, expenses_by_type)
+
+    { total: total, unit_values: unit_values, expenses_by_type: expenses_by_type_detail }
+  end
+
+  def self.build_unit_values(types, expenses_by_type)
+    unit_values = {}
     types.each do |type|
       type_expenses = expenses_by_type[type] || []
       next if type_expenses.empty?
@@ -108,8 +111,16 @@ class EquilibriumPoint
         count: type_expenses.count,
         total_value: total_value,
       }
+    end
+    unit_values
+  end
 
-      # Include detailed expense information grouped by type
+  def self.build_expenses_by_type_detail(types, expenses_by_type)
+    expenses_by_type_detail = {}
+    types.each do |type|
+      type_expenses = expenses_by_type[type] || []
+      next if type_expenses.empty?
+
       expenses_by_type_detail[type] = type_expenses.map do |expense|
         {
           id: expense.id,
@@ -117,17 +128,16 @@ class EquilibriumPoint
           unit_value: expense.unit_value,
           quantity: expense.quantity,
           total_value: expense.total_value,
-          date: expense.date
+          date: expense.date,
         }
       end
     end
-
-    { total: total, unit_values: unit_values, expenses_by_type: expenses_by_type_detail }
+    expenses_by_type_detail
   end
 
   # Get metadata for all available income types (not just selected ones)
   def self.all_income_types_metadata
-    all_types = TransactionCategory.all.includes(:incomes)
+    all_types = TransactionCategory.includes(:incomes)
     metadata = {}
 
     all_types.each do |category|
@@ -136,10 +146,10 @@ class EquilibriumPoint
 
       metadata[category.name] = {
         name: category.name,
-        description: category.description || '',
+        description: category.description || "",
         avg_unit_value: (incomes.sum(&:unit_value).to_f / incomes.count).round(2),
         total_value: incomes.sum(&:unit_value),
-        record_count: incomes.count
+        record_count: incomes.count,
       }
     end
 
@@ -163,7 +173,7 @@ class EquilibriumPoint
         avg_unit_value: (total_quantity.positive? ? (total_value.to_f / total_quantity).round(2) : 0.0),
         total_value: total_value,
         record_count: expenses.count,
-        total_quantity: total_quantity
+        total_quantity: total_quantity,
       }
     end
 
