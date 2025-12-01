@@ -134,4 +134,68 @@ RSpec.describe(DashboardController, type: :controller) do
       end
     end
   end
+
+  # Note: equilibrium_point is not a route, it's a private method called from index
+  # The tests for equilibrium_point functionality are already covered in the index tests above
+
+  describe "POST #calculate_equilibrium" do
+    it "returns a success response" do
+      post :calculate_equilibrium, params: {}, session: valid_session
+      expect(response).to(be_successful)
+    end
+
+    it "returns JSON response" do
+      post :calculate_equilibrium, params: {}, session: valid_session
+      expect(response.content_type).to(include("application/json"))
+    end
+
+    it "returns equilibrium point data" do
+      post :calculate_equilibrium, params: {}, session: valid_session
+      parsed_response = response.parsed_body
+      expect(parsed_response).to(have_key("equilibrium_point"))
+      expect(parsed_response).to(have_key("income_total"))
+      expect(parsed_response).to(have_key("expenses_total"))
+      expect(parsed_response).to(have_key("income_unit_values"))
+      expect(parsed_response).to(have_key("expenses_unit_values"))
+      expect(parsed_response).to(have_key("expenses_by_type"))
+      expect(parsed_response).to(have_key("income_count"))
+      expect(parsed_response).to(have_key("expenses_count"))
+    end
+
+    it "uses default empty arrays when no params provided" do
+      post :calculate_equilibrium, params: {}, session: valid_session
+      parsed_response = response.parsed_body
+      expect(parsed_response["selected_income_types"]).to(eq([]))
+      expect(parsed_response["selected_expense_types"]).to(eq([]))
+    end
+
+    it "includes selected income types in response" do
+      post :calculate_equilibrium, params: { income_types: ["daily", "monthly"] }, session: valid_session
+      parsed_response = response.parsed_body
+      expect(parsed_response["selected_income_types"]).to(eq(["daily", "monthly"]))
+    end
+
+    it "includes selected expense types in response" do
+      post :calculate_equilibrium, params: { expenses_types: ["Basic", "Intermediary"] }, session: valid_session
+      parsed_response = response.parsed_body
+      expect(parsed_response["selected_expense_types"]).to(eq(["Basic", "Intermediary"]))
+    end
+
+    it "calculates equilibrium with provided income and expense types" do
+      post :calculate_equilibrium,
+           params: { income_types: ["daily"], expenses_types: ["Basic"] },
+           session: valid_session
+      parsed_response = response.parsed_body
+      expect(parsed_response).to(have_key("equilibrium_point"))
+      expect(parsed_response["selected_income_types"]).to(eq(["daily"]))
+      expect(parsed_response["selected_expense_types"]).to(eq(["Basic"]))
+    end
+
+    it "returns numeric values for income_total and expenses_total" do
+      post :calculate_equilibrium, params: {}, session: valid_session
+      parsed_response = response.parsed_body
+      expect(parsed_response["income_total"]).to(be_a(Numeric))
+      expect(parsed_response["expenses_total"]).to(be_a(Numeric))
+    end
+  end
 end
